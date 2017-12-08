@@ -302,6 +302,12 @@ init_scanner(FILE *input_file)
   tok->indstack[0] = FIRST_COLUMN;  /* Start column (not 0)  */
 }
 
+void end_scanner()
+{
+    if (tok)
+       free(tok);
+}
+
 static void display_error(const char *msg)
 {
     fprintf (stderr, "%d.%d-%d.%d:", yylloc.first_line, yylloc.first_column,
@@ -394,8 +400,6 @@ static void note_new_indent(int col)
       pop_indents(col);
     /* else col == curr_indent, so do nothing */
 }
-
-
 
 int yylex(void)
 {

@@ -28,7 +28,7 @@ public:
     if (!instance) instance = new NullNode();
     return instance;
   }
-  virtual ~NullNode() { delete instance; }
+  virtual ~NullNode() { if (instance) delete instance; }
   virtual const Literal* eval() const { return val; }
   NullNode(const NullNode&) = delete;
   NullNode& operator=(const NullNode&) = delete;

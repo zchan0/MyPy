@@ -29,6 +29,7 @@
 #include "includes/ast.h"
 
 extern int yyparse();
+extern void end_scanner();
 extern void init_scanner(FILE *);
 extern "C" {
   int yydebug;
@@ -59,6 +60,8 @@ int main(int argc, char * argv[]) {
   }
 
   fclose(input_file);
+  end_scanner();
+  PoolOfNodes::getInstance().add(NullNode::getInstance());
   PoolOfNodes::getInstance().drainThePool();
 
   return (parse_had_errors ? EXIT_FAILURE : EXIT_SUCCESS);
