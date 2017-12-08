@@ -20,7 +20,8 @@ NullNode* nNull = NullNode::getInstance();
 
 %type<op> pick_unop pick_multop pick_PLUS_MINUS augassign
 %type<node> atom power factor term arith_expr
-%type<node> print_stmt opt_test test
+%type<node> print_stmt opt_test test or_test and_test not_test opt_IF_ELSE
+%type<node> comparison expr xor_expr and_expr shift_expr
 %type<node> expr_stmt testlist star_EQUAL pick_yield_expr_testlist
 
 %token<intNumber> INT
@@ -451,28 +452,28 @@ old_lambdef // Used in: old_test
 	| LAMBDA COLON old_test
 	;
 test // Used in: opt_EQUAL_test, print_stmt, star_COMMA_test, opt_test, plus_COMMA_test, raise_stmt, opt_COMMA_test, opt_test_3, exec_stmt, assert_stmt, if_stmt, star_ELIF, while_stmt, with_item, except_clause, opt_AS_COMMA, opt_IF_ELSE, listmaker, testlist_comp, lambdef, subscript, opt_test_only, sliceop, testlist, dictorsetmaker, star_test_COLON_test, opt_DOUBLESTAR_test, pick_argument, argument, testlist1
-	: or_test opt_IF_ELSE
-	| lambdef
+	: or_test opt_IF_ELSE { $$ = $1; }
+	| lambdef { $$ = nNull; }
 	;
 opt_IF_ELSE // Used in: test
-	: IF or_test ELSE test
-	| %empty
+	: IF or_test ELSE test { $$ = nNull; }
+	| %empty { $$ = nNull; }
 	;
 or_test // Used in: old_test, test, opt_IF_ELSE, or_test, comp_for
 	: and_test
-	| or_test OR and_test
+	| or_test OR and_test { $$ = nNull; }
 	;
 and_test // Used in: or_test, and_test
 	: not_test
-	| and_test AND not_test
+	| and_test AND not_test { $$ = nNull; }
 	;
 not_test // Used in: and_test, not_test
-	: NOT not_test
+	: NOT not_test { $$ = nNull; }
 	| comparison
 	;
 comparison // Used in: not_test, comparison
 	: expr
-	| comparison comp_op expr
+	| comparison comp_op expr { $$ = nNull; }
 	;
 comp_op // Used in: comparison
 	: LESS
@@ -489,19 +490,19 @@ comp_op // Used in: comparison
 	;
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
 	: xor_expr
-	| expr BAR xor_expr
+	| expr BAR xor_expr { $$ = nNull; }
 	;
 xor_expr // Used in: expr, xor_expr
 	: and_expr
-	| xor_expr CIRCUMFLEX and_expr
+	| xor_expr CIRCUMFLEX and_expr { $$ = nNull; }
 	;
 and_expr // Used in: xor_expr, and_expr
 	: shift_expr
-	| and_expr AMPERSAND shift_expr
+	| and_expr AMPERSAND shift_expr { $$ = nNull; }
 	;
 shift_expr // Used in: and_expr, shift_expr
 	: arith_expr
-	| shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr
+	| shift_expr pick_LEFTSHIFT_RIGHTSHIFT arith_expr { $$ = nNull; }
 	;
 pick_LEFTSHIFT_RIGHTSHIFT // Used in: shift_expr
 	: LEFTSHIFT
