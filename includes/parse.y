@@ -8,6 +8,8 @@ void yyerror (const char *);
 
 PoolOfNodes& pool = PoolOfNodes::getInstance();
 NullNode* nNull = NullNode::getInstance();
+
+bool isOpEqual(const char*, const char*);
 %}
 
 %union {
@@ -15,14 +17,18 @@ NullNode* nNull = NullNode::getInstance();
 	int intNumber;
 	float fltNumber;
 	char op; // operator
+	const char* cmp; // compare operator
 	char* id;
 }
 
 %type<op> pick_unop pick_multop pick_PLUS_MINUS augassign
+%type<cmp> comp_op
+
 %type<node> atom power factor term arith_expr
 %type<node> print_stmt opt_test test or_test and_test not_test opt_IF_ELSE
 %type<node> comparison expr xor_expr and_expr shift_expr
 %type<node> expr_stmt testlist star_EQUAL pick_yield_expr_testlist
+%type<node> pick_NEWLINE_stmt stmt simple_stmt if_stmt suite plus_stmt
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -53,7 +59,7 @@ file_input // Used in: start
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
-	| stmt
+	| stmt { $$ = nNull; }
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: star_NEWLINE_stmt pick_NEWLINE_stmt
@@ -428,12 +434,12 @@ opt_AS_COMMA // Used in: except_clause
 	| %empty
 	;
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
-	: simple_stmt
-	| NEWLINE INDENT plus_stmt DEDENT
+	: simple_stmt { $$ = nNull; }
+	| NEWLINE INDENT plus_stmt DEDENT { $$ = nNull; }
 	;
 plus_stmt // Used in: suite, plus_stmt
-	: plus_stmt stmt
-	| stmt
+	: plus_stmt stmt { $$ = nNull; }
+	| stmt { $$ = nNull; }
 	;
 testlist_safe // Used in: list_for
 	: old_test plus_COMMA_old_test opt_COMMA
@@ -473,20 +479,25 @@ not_test // Used in: and_test, not_test
 	;
 comparison // Used in: not_test, comparison
 	: expr
-	| comparison comp_op expr { $$ = nNull; }
+	| comparison comp_op expr {
+		if (isOpEqual($2, "<")) {
+			$$ = new LessBinaryNode($1, $3);
+			pool.add($$);
+		}
+	}
 	;
 comp_op // Used in: comparison
-	: LESS
-	| GREATER
-	| EQEQUAL
-	| GREATEREQUAL
-	| LESSEQUAL
-	| GRLT
-	| NOTEQUAL
-	| IN
-	| NOT IN
-	| IS
-	| IS NOT
+	: LESS { $$ = "<"; }
+	| GREATER { $$ = ">"; }
+	| EQEQUAL { $$ = "=="; }
+	| GREATEREQUAL { $$ = ">="; }
+	| LESSEQUAL { $$ = "<="; }
+	| GRLT { $$ = "<>"; }
+	| NOTEQUAL { $$ = "!="; }
+	| IN { $$ = ""; }
+	| NOT IN { $$ = ""; }
+	| IS { $$ = ""; }
+	| IS NOT { $$ = ""; }
 	;
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
 	: xor_expr
@@ -770,3 +781,8 @@ void yyerror (const char *s)
     fprintf(stderr, " %s with [%s]\n", s, yytext);
 }
 
+bool isOpEqual(const char* op1, const char* op2)
+{
+	if (strcmp(op1, op2) == 0) return true;
+	return false;
+}

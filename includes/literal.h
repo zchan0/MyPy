@@ -35,6 +35,10 @@ public:
   virtual const Literal* opExp(float) const = 0;
   virtual const Literal* opExp(int) const = 0;
 
+  virtual const Literal* operator<(const Literal& rhs) const = 0;
+  virtual const Literal* opLess(float) const = 0;
+  virtual const Literal* opLess(int) const = 0;
+
   virtual const Literal* eval() const = 0;
   virtual const Literal* unopVal(char op) const = 0;
 
@@ -150,6 +154,24 @@ public:
     const Literal* node = new FloatLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
+  }
+
+
+  virtual const Literal* operator<(const Literal& rhs) const {
+    return rhs.opLess(val);
+  }
+  virtual const Literal* opLess(float lhs) const {
+    const Literal* node;
+    if (lhs < val) {
+      node = new FloatLiteral(1);
+    } else {
+      node = new FloatLiteral(0);
+    }
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* opLess(int lhs) const {
+    return this->opLess((float)lhs);
   }
 
   virtual const Literal* eval() const { return this; }
@@ -291,6 +313,24 @@ public:
     const Literal* node = new IntLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
+  }
+
+
+  virtual const Literal* operator<(const Literal& rhs) const {
+    return rhs.opLess(val);
+  }
+  virtual const Literal* opLess(float lhs) const {
+    const Literal* node;
+    if (lhs < val) {
+      node = new IntLiteral(1);
+    } else {
+      node = new IntLiteral(0);
+    }
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* opLess(int lhs) const {
+    return this->opLess((float)lhs);
   }
 
   virtual const Literal* eval() const { return this; }
