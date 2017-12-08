@@ -106,3 +106,9 @@ public:
   virtual const Literal* eval() const;
 };
 
+class ExpBinaryNode : public BinaryNode {
+public:
+  ExpBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
+  virtual const Literal* eval() const;
+};
+

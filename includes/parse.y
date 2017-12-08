@@ -20,7 +20,7 @@ NullNode* nNull = NullNode::getInstance();
 
 %type<op> pick_unop pick_multop pick_PLUS_MINUS
 %type<node> atom power factor term arith_expr
-%type<node> print_stmt opt_test
+%type<node> print_stmt opt_test test
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -167,19 +167,25 @@ augassign // Used in: expr_stmt
 	;
 print_stmt // Used in: small_stmt
 	: PRINT opt_test {
-		$$ = new PrintNode($2);
+		if ($2->isNull()) {
+			$$ = $2;
+		} else {
+			$$ = new PrintNode($2);
+			pool.add($$);
+		}
 		$$->eval();
-		pool.add($$);
 	}
-	| PRINT RIGHTSHIFT test opt_test_2
+	| PRINT RIGHTSHIFT test opt_test_2 { // print >> sys.stderr, '--'
+		$$ = nNull;
+	}
 	;
 star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp, testlist, pick_for_test
 	: star_COMMA_test COMMA test
 	| %empty
 	;
 opt_test // Used in: print_stmt
-	: test star_COMMA_test opt_COMMA
-	| %empty
+	: test star_COMMA_test opt_COMMA { $$ = $1; }
+	| %empty { $$ = nNull; }
 	;
 plus_COMMA_test // Used in: plus_COMMA_test, opt_test_2
 	: plus_COMMA_test COMMA test
@@ -484,7 +490,8 @@ pick_unop // Used in: factor
 	;
 power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor {	// pow(atom, factor)
-
+		$$ = new ExpBinaryNode($1, $4);
+		pool.add($$);
 	}
 	| atom star_trailer {	// star_trailer: zero or more (), [], .xxx
 		$$ = $1;

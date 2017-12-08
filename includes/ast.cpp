@@ -13,8 +13,10 @@ const Literal* IdentNode::eval() const {
 }
 
 const Literal* PrintNode::eval() const {
-  if (node) {
+  if (!node->isNull()) {
     node->eval()->print();
+  } else {
+    std::cout << "Print NullNode" << std::endl;
   }
   return nullptr;
 }
@@ -80,3 +82,11 @@ const Literal* DivBinaryNode::eval() const {
   return ((*x)/(*y));
 }
 
+const Literal* ExpBinaryNode::eval() const {
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return (*x) ^ (*y);
+}

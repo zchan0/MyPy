@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "node.h"
 #include "poolOfNodes.h"
 
@@ -20,6 +22,10 @@ public:
   virtual const Literal* operator/(const Literal& rhs) const =0;
   virtual const Literal* opDiv(float) const =0;
   virtual const Literal* opDiv(int) const =0;
+
+  virtual const Literal* operator^(const Literal& rhs) const = 0;
+  virtual const Literal* opExp(float) const = 0;
+  virtual const Literal* opExp(int) const = 0;
 
   virtual const Literal* eval() const = 0;
   virtual const Literal* unopVal(char op) const = 0;
@@ -87,6 +93,26 @@ public:
   virtual const Literal* opDiv(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(lhs / val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator^(const Literal& rhs) const {
+    return rhs.opExp(val);
+  }
+  virtual const Literal* opExp(float lhs) const {
+    if ( lhs == 0 && val < 0 ) {
+      throw std::string("ZeroDivisionError: 0.0 cannot be raised to a negative power");
+    }
+    const Literal* node = new FloatLiteral(pow(lhs, val));
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* opExp(int lhs) const {
+    if ( lhs == 0 && val < 0 ) {
+      throw std::string("ZeroDivisionError: 0 cannot be raised to a negative power");
+    }
+    const Literal* node = new FloatLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -171,6 +197,26 @@ public:
   virtual const Literal* opDiv(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new IntLiteral(lhs / val);
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+
+  virtual const Literal* operator^(const Literal& rhs) const {
+    return rhs.opExp(val);
+  }
+  virtual const Literal* opExp(float lhs) const {
+    if ( lhs == 0 && val < 0 ) {
+      throw std::string("ZeroDivisionError: 0.0 cannot be raised to a negative power");
+    }
+    const Literal* node = new FloatLiteral(pow(lhs, val));
+    PoolOfNodes::getInstance().add(node);
+    return node;
+  }
+  virtual const Literal* opExp(int lhs) const {
+    if ( lhs == 0 && val < 0 ) {
+      throw std::string("ZeroDivisionError: 0 cannot be raised to a negative power");
+    }
+    const Literal* node = new IntLiteral(pow(lhs, val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
