@@ -231,7 +231,8 @@ public:
   }
   virtual const Literal* opDiv(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    const Literal* node = new IntLiteral(lhs / val);
+    float res = (float)lhs / val;
+    const Literal* node = new IntLiteral(std::floor(res));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -264,7 +265,6 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-
   virtual const Literal* opMod(int lhs) const {
     if ( val == 0 ) throw std::string("Zero Division Error");
     int r = ((lhs % val) + val) % val;
