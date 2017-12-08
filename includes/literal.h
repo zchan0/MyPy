@@ -278,7 +278,11 @@ public:
   }
 
   virtual void print() const {
-    std::cout << "FLOAT: " << val << std::endl;
+    if ((int)val == val) {
+      std::cout << val << ".0" << std::endl;
+    } else {
+      std::cout << val << std::endl;
+    }
   }
 private:
   float val;
@@ -505,7 +509,7 @@ public:
   }
 
   virtual void print() const {
-    std::cout << "INT: " << val << std::endl;
+    std::cout << val << std::endl;
   }
 private:
   int val;

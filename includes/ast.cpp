@@ -13,11 +13,11 @@ const Literal* IdentNode::eval() const {
 }
 
 const Literal* PrintNode::eval() const {
-  if (!node->isNull()) {
-    node->eval()->print();
-  } else {
-    std::cout << "Print NullNode" << std::endl;
+  if (node->isNull()) {
+    std::cout << "print NullNode" << std::endl;
+    return nullptr;
   }
+  node->eval()->print();
   return nullptr;
 }
 

@@ -60,7 +60,7 @@ file_input // Used in: start
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
-	| stmt { $$ = nNull; }
+	| stmt
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: star_NEWLINE_stmt pick_NEWLINE_stmt
@@ -223,7 +223,7 @@ expr_stmt // Used in: small_stmt
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr { $$ = nNull; }
-	| testlist { $$ = $1; }
+	| testlist
 	;
 star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: star_EQUAL EQUAL pick_yield_expr_testlist { $$ = $3; }
@@ -245,13 +245,9 @@ augassign // Used in: expr_stmt
 	;
 print_stmt // Used in: small_stmt
 	: PRINT opt_test {
-		if ($2->isNull()) {
-			$$ = $2;
-		} else {
-			$$ = new PrintNode($2);
-			pool.add($$);
-		}
+		$$ = new PrintNode($2);
 		$$->eval();
+		pool.add($$);
 	}
 	| PRINT RIGHTSHIFT test opt_test_2 { // print >> sys.stderr, '--'
 		$$ = nNull;
@@ -262,7 +258,7 @@ star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp,
 	| %empty
 	;
 opt_test // Used in: print_stmt
-	: test star_COMMA_test opt_COMMA { $$ = $1; }
+	: test star_COMMA_test opt_COMMA
 	| %empty { $$ = nNull; }
 	;
 plus_COMMA_test // Used in: plus_COMMA_test, opt_test_2
@@ -459,7 +455,7 @@ old_lambdef // Used in: old_test
 	| LAMBDA COLON old_test
 	;
 test // Used in: opt_EQUAL_test, print_stmt, star_COMMA_test, opt_test, plus_COMMA_test, raise_stmt, opt_COMMA_test, opt_test_3, exec_stmt, assert_stmt, if_stmt, star_ELIF, while_stmt, with_item, except_clause, opt_AS_COMMA, opt_IF_ELSE, listmaker, testlist_comp, lambdef, subscript, opt_test_only, sliceop, testlist, dictorsetmaker, star_test_COLON_test, opt_DOUBLESTAR_test, pick_argument, argument, testlist1
-	: or_test opt_IF_ELSE { $$ = $1; }
+	: or_test opt_IF_ELSE
 	| lambdef { $$ = nNull; }
 	;
 opt_IF_ELSE // Used in: test
@@ -533,7 +529,7 @@ pick_LEFTSHIFT_RIGHTSHIFT // Used in: shift_expr
 	| RIGHTSHIFT
 	;
 arith_expr // Used in: shift_expr, arith_expr
-	: term { $$ = $1; }
+	: term
 	| arith_expr pick_PLUS_MINUS term {
 		if ($2 == '+') {
 			$$ = new AddBinaryNode($1, $3);
@@ -550,7 +546,7 @@ pick_PLUS_MINUS // Used in: arith_expr
 	| MINUS { $$ = '-'; }
 	;
 term // Used in: arith_expr, term
-	: factor { $$ = $1; }
+	: factor
 	| term pick_multop factor {
 		switch($2) {
 			case '*':
@@ -578,7 +574,7 @@ pick_multop // Used in: term
 	;
 factor // Used in: term, factor, power
 	: pick_unop factor { $$ = new UnaryNode($1, $2); }
-	| power { $$ = $1; }
+	| power
 	;
 pick_unop // Used in: factor
 	: PLUS  { $$ = '+'; }
