@@ -22,6 +22,47 @@ private:
   std::string ident;
 };
 
+class NullNode : public Node {
+public:
+  static NullNode* getInstance() {
+    if (!instance) instance = new NullNode();
+    return instance;
+  }
+  virtual ~NullNode() { delete instance; }
+  virtual const Literal* eval() const { return val; }
+  NullNode(const NullNode&) = delete;
+  NullNode& operator=(const NullNode&) = delete;
+private:
+  NullNode() : Node(), val(nullptr) {}
+  Literal* val;
+  static NullNode* instance;
+};
+
+class PrintNode : public Node {
+public:
+  PrintNode(Node* n) : Node(), node(n) {}
+  virtual ~PrintNode() {}
+  virtual const Literal* eval() const;
+  Node* getNode() const { return node; }
+  PrintNode(const PrintNode&) = delete;
+  PrintNode& operator=(const PrintNode&) = delete;
+private:
+  Node* node;
+};
+
+class UnaryNode : public Node {
+public:
+  UnaryNode(char c, Node* n) : Node(), op(c), node(n) {}
+  virtual ~UnaryNode() {}
+  virtual const Literal* eval() const;
+  Node* getNode() const { return node; }
+  UnaryNode(const UnaryNode&) = delete;
+  UnaryNode& operator=(const UnaryNode&) = delete;
+private:
+  char op; // unary operator: +, -, ~
+  Node* node;
+};
+
 class BinaryNode : public Node {
 public:
   BinaryNode(Node* l, Node* r) : Node(), left(l), right(r) {}

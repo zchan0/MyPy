@@ -26,7 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "includes/poolOfNodes.h"
+#include "includes/ast.h"
 
 extern int yyparse();
 extern void init_scanner(FILE *);
@@ -42,6 +42,8 @@ static FILE *open_file(const char *filename) {
   }
   return file;
 }
+
+NullNode* NullNode::instance = nullptr;
 
 int main(int argc, char * argv[]) {
   FILE *input_file = stdin;

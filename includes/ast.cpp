@@ -7,21 +7,32 @@
 #include "ast.h"
 #include "symbolTable.h"
 
-const Literal* IdentNode::eval() const { 
+const Literal* IdentNode::eval() const {
   const Literal* val = SymbolTable::getInstance().getValue(ident);
   return val;
 }
 
+const Literal* PrintNode::eval() const {
+  if (node) {
+    node->eval()->print();
+  }
+  return nullptr;
+}
 
-AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) : 
-  BinaryNode(left, right) { 
+const Literal* UnaryNode::eval() const {
+  const Literal* absVal = node->eval();
+  return absVal->unopVal(op);
+}
+
+AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
+  BinaryNode(left, right) {
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
   SymbolTable::getInstance().setValue(n, res);
 }
 
 
-const Literal* AsgBinaryNode::eval() const { 
+const Literal* AsgBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }
@@ -32,7 +43,7 @@ const Literal* AsgBinaryNode::eval() const {
   return res;
 }
 
-const Literal* AddBinaryNode::eval() const { 
+const Literal* AddBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }
@@ -42,7 +53,7 @@ const Literal* AddBinaryNode::eval() const {
   return (*x).operator+(*y);
 }
 
-const Literal* SubBinaryNode::eval() const { 
+const Literal* SubBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }
@@ -51,7 +62,7 @@ const Literal* SubBinaryNode::eval() const {
   return ((*x)-(*y));
 }
 
-const Literal* MulBinaryNode::eval() const { 
+const Literal* MulBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }
@@ -60,7 +71,7 @@ const Literal* MulBinaryNode::eval() const {
   return ((*x)*(*y));
 }
 
-const Literal* DivBinaryNode::eval() const { 
+const Literal* DivBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }

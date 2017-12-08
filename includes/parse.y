@@ -7,14 +7,20 @@ extern char *yytext;
 void yyerror (const char *);
 
 PoolOfNodes& pool = PoolOfNodes::getInstance();
-
+NullNode* nNull = NullNode::getInstance();
 %}
 
 %union {
+	Node* node;
 	int intNumber;
 	float fltNumber;
+	char op; // operator
 	char* id;
 }
+
+%type<op> pick_unop pick_multop pick_PLUS_MINUS
+%type<node> atom power factor term arith_expr
+%type<node> print_stmt opt_test
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -160,7 +166,11 @@ augassign // Used in: expr_stmt
 	| DOUBLESLASHEQUAL
 	;
 print_stmt // Used in: small_stmt
-	: PRINT opt_test
+	: PRINT opt_test {
+		$$ = new PrintNode($2);
+		$$->eval();
+		pool.add($$);
+	}
 	| PRINT RIGHTSHIFT test opt_test_2
 	;
 star_COMMA_test // Used in: star_COMMA_test, opt_test, listmaker, testlist_comp, testlist, pick_for_test
@@ -422,50 +432,88 @@ pick_LEFTSHIFT_RIGHTSHIFT // Used in: shift_expr
 	| RIGHTSHIFT
 	;
 arith_expr // Used in: shift_expr, arith_expr
-	: term
-	| arith_expr pick_PLUS_MINUS term
+	: term { $$ = $1; }
+	| arith_expr pick_PLUS_MINUS term {
+		if ($2 == '+') {
+			$$ = new AddBinaryNode($1, $3);
+			pool.add($$);
+		}
+		if ($2 == '-') {
+			$$ = new SubBinaryNode($1, $3);
+			pool.add($$);
+		}
+	}
 	;
 pick_PLUS_MINUS // Used in: arith_expr
-	: PLUS
-	| MINUS
+	: PLUS { $$ = '+'; }
+	| MINUS { $$ = '-'; }
 	;
 term // Used in: arith_expr, term
-	: factor
-	| term pick_multop factor
+	: factor { $$ = $1; }
+	| term pick_multop factor {
+		switch($2) {
+			case '*':
+				$$ = new MulBinaryNode($1, $3);
+				pool.add($$); break;
+			case '/':
+				$$ = new DivBinaryNode($1, $3);
+				pool.add($$); break;
+			case '%':
+				$$ = nNull; break;
+			case '@':
+				$$ = nNull; break;
+			default:
+				$$ = nNull; break;
+		};
+	}
 	;
 pick_multop // Used in: term
-	: STAR
-	| SLASH
-	| PERCENT
-	| DOUBLESLASH
+	: STAR { $$ = '*'; }
+	| SLASH { $$ = '/'; }
+	| PERCENT { $$ = '%'; }
+	| DOUBLESLASH { $$ = '@'; }
 	;
 factor // Used in: term, factor, power
-	: pick_unop factor
-	| power
+	: pick_unop factor { $$ = new UnaryNode($1, $2); }
+	| power { $$ = $1; }
 	;
 pick_unop // Used in: factor
-	: PLUS
-	| MINUS
-	| TILDE
+	: PLUS  { $$ = '+'; }
+	| MINUS { $$ = '-'; }
+	| TILDE { $$ = '~'; }
 	;
 power // Used in: factor
-	: atom star_trailer DOUBLESTAR factor
-	| atom star_trailer
+	: atom star_trailer DOUBLESTAR factor {	// pow(atom, factor)
+
+	}
+	| atom star_trailer {	// star_trailer: zero or more (), [], .xxx
+		$$ = $1;
+	}
 	;
 star_trailer // Used in: power, star_trailer
 	: star_trailer trailer
 	| %empty
 	;
 atom // Used in: power
-	: LPAR opt_yield_test RPAR
-	| LSQB opt_listmaker RSQB
-	| LBRACE opt_dictorsetmaker RBRACE
-	| BACKQUOTE testlist1 BACKQUOTE
-	| NAME
-	| NUMBER
-	| INT
-	| FLOAT
-	| plus_STRING
+	: LPAR opt_yield_test RPAR { $$ = nNull; }
+	| LSQB opt_listmaker RSQB { $$ = nNull; }
+	| LBRACE opt_dictorsetmaker RBRACE { $$ = nNull; }
+	| BACKQUOTE testlist1 BACKQUOTE { $$ = nNull; }
+	| NAME {
+		$$ = new IdentNode($1);
+		delete $1;
+		pool.add($$);
+	}
+	| NUMBER { $$ = nNull; }
+	| INT {
+		$$ = new IntLiteral($1);
+		pool.add($$);
+	}
+	| FLOAT {
+		$$ = new FloatLiteral($1);
+		pool.add($$);
+	}
+	| plus_STRING { $$ = nNull; }
 	;
 pick_yield_expr_testlist_comp // Used in: opt_yield_test
 	: yield_expr

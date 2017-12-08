@@ -22,6 +22,8 @@ public:
   virtual const Literal* opDiv(int) const =0;
 
   virtual const Literal* eval() const = 0;
+  virtual const Literal* unopVal(char op) const = 0;
+
   virtual void print() const {
     std::cout << "No Way" << std::endl;
   }
@@ -90,6 +92,20 @@ public:
   }
 
   virtual const Literal* eval() const { return this; }
+  virtual const Literal* unopVal(char op) const {
+    switch(op) {
+      case '-': {
+        const Literal* node = new FloatLiteral(-val);
+        PoolOfNodes::getInstance().add(node);
+        return node;
+      }
+      case '+':
+      case '~':
+      default:
+        return this;
+    };
+  }
+
   virtual void print() const {
     std::cout << "FLOAT: " << val << std::endl;
   }
@@ -160,6 +176,20 @@ public:
   }
 
   virtual const Literal* eval() const { return this; }
+  virtual const Literal* unopVal(char op) const {
+    switch(op) {
+      case '-': {
+        const Literal* node = new IntLiteral(-val);
+        PoolOfNodes::getInstance().add(node);
+        return node;
+      }
+      case '+':
+      case '~':
+      default:
+        return this;
+    };
+  }
+
   virtual void print() const {
     std::cout << "INT: " << val << std::endl;
   }
