@@ -467,7 +467,8 @@ term // Used in: arith_expr, term
 			case '%':
 				$$ = nNull; break;
 			case '@':
-				$$ = nNull; break;
+				$$ = new IntDivBinaryNode($1, $3);
+				pool.add($$); break;
 			default:
 				$$ = nNull; break;
 		};

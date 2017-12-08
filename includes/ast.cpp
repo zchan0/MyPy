@@ -82,6 +82,15 @@ const Literal* DivBinaryNode::eval() const {
   return ((*x)/(*y));
 }
 
+const Literal* IntDivBinaryNode::eval() const {
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return (*x).intDiv(*y);
+}
+
 const Literal* ExpBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
