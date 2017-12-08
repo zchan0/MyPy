@@ -1,0 +1,5 @@
+.vscode
+*.o
+*.tab.*
+*.yy.c
+run
