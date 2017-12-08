@@ -33,8 +33,8 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   SymbolTable::getInstance().setValue(n, res);
 }
 const Literal* AsgBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
@@ -43,8 +43,8 @@ const Literal* AsgBinaryNode::eval() const {
 }
 
 const Literal* AddBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -53,8 +53,8 @@ const Literal* AddBinaryNode::eval() const {
 }
 
 const Literal* SubBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -62,8 +62,8 @@ const Literal* SubBinaryNode::eval() const {
 }
 
 const Literal* MulBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -71,8 +71,8 @@ const Literal* MulBinaryNode::eval() const {
 }
 
 const Literal* DivBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -80,8 +80,8 @@ const Literal* DivBinaryNode::eval() const {
 }
 
 const Literal* IntDivBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -89,8 +89,8 @@ const Literal* IntDivBinaryNode::eval() const {
 }
 
 const Literal* ModBinaryNode::eval() const {
-    if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -98,8 +98,8 @@ const Literal* ModBinaryNode::eval() const {
 }
 
 const Literal* ExpBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -108,8 +108,8 @@ const Literal* ExpBinaryNode::eval() const {
 
 
 const Literal* LessBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -117,8 +117,8 @@ const Literal* LessBinaryNode::eval() const {
 }
 
 const Literal* GreaterBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -126,8 +126,8 @@ const Literal* GreaterBinaryNode::eval() const {
 }
 
 const Literal* EqualBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -135,8 +135,8 @@ const Literal* EqualBinaryNode::eval() const {
 }
 
 const Literal* GrtEqBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
@@ -144,8 +144,8 @@ const Literal* GrtEqBinaryNode::eval() const {
 }
 
 const Literal* LessEqBinaryNode::eval() const {
-  if (!left || !right) {
-    throw "error";
+  if (left->isNull() || right->isNull()) {
+    throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();

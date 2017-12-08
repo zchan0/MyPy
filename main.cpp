@@ -52,18 +52,24 @@ int main(int argc, char * argv[]) {
     input_file = open_file(argv[1]);
   }
   init_scanner(input_file);
-  yydebug = 1;  /* Change to 1 if you want debugging */
-  int parse_had_errors = yyparse();
+  yydebug = 0;  /* Change to 1 if you want debugging */
 
-  if (parse_had_errors) {
-    fprintf(stderr, "Abnormal termination\n");
+  try {
+    if ( yyparse() == 0 ) {
+      fclose(input_file);
+      end_scanner();
+      PoolOfNodes::getInstance().add(NullNode::getInstance());
+      PoolOfNodes::getInstance().drainThePool();
+      std::cout << "Program syntactically correct" << std::endl;
+      return EXIT_SUCCESS;
+    }
   }
-
-  fclose(input_file);
-  end_scanner();
-  PoolOfNodes::getInstance().add(NullNode::getInstance());
-  PoolOfNodes::getInstance().drainThePool();
-
-  return (parse_had_errors ? EXIT_FAILURE : EXIT_SUCCESS);
+  catch ( const std::string& msg ) {
+    std::cout << "oops: " << msg << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch ( ... ) {
+    std::cout << "Uncaught exception: " << std::endl;
+  }
 }
 
