@@ -144,12 +144,12 @@ public:
 
 class GrtEqBinaryNode : public BinaryNode {
 public:
-  GrtEqBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+  GrtEqBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {}
   virtual const Literal* eval() const;
 };
 
-class lesEqBinaryNode : public BinaryNode {
+class LessEqBinaryNode : public BinaryNode {
 public:
-  lesEqBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+  LessEqBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {}
   virtual const Literal* eval() const;
 };

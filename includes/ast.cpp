@@ -143,7 +143,7 @@ const Literal* GrtEqBinaryNode::eval() const {
   return (*x) >= (*y);
 }
 
-const Literal* lesEqBinaryNode::eval() const {
+const Literal* LessEqBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }

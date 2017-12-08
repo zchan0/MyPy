@@ -494,7 +494,7 @@ comparison // Used in: not_test, comparison
 			$$ = new GrtEqBinaryNode($1, $3);
 			pool.add($$);
 		} else if (isOpEqual($2, "<=")) {
-			$$ = new lesEqBinaryNode($1, $3);
+			$$ = new LessEqBinaryNode($1, $3);
 			pool.add($$);
 		}
 	}
