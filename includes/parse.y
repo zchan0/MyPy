@@ -151,73 +151,59 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist {
 		IdentNode* lhs = dynamic_cast<IdentNode*>($1);
-		if (lhs) {
-			switch($2) {
-				case '1': {
-					Node* sum = new AddBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, sum);
-					pool.add(sum);
-					pool.add($$);
-					break;
-				}
-				case '2': {
-					Node* sub = new SubBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, sub);
-					pool.add(sub);
-					pool.add($$);
-					break;
-				}
-				case '3': {
-					Node* mul = new MulBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, mul);
-					pool.add(mul);
-					pool.add($$);
-					break;
-				}
-				case '4': {
-					Node* divd = new DivBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, divd);
-					pool.add(divd);
-					pool.add($$);
-					break;
-				}
-				case '5': {
-					Node* mod = new ModBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, mod);
-					pool.add(mod);
-					pool.add($$);
-					break;
-				}
-				case '6': {
-					Node* expn = new ExpBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, expn);
-					pool.add(expn);
-					pool.add($$);
-					break;
-				}
-				case '7': {
-					Node* idivd = new IntDivBinaryNode(lhs, $3);
-					$$ = new AsgBinaryNode(lhs, idivd);
-					pool.add(idivd);
-					pool.add($$);
-					break;
-				}
-				default:
-					$$ = $1; break;
+		switch($2) {
+			case '1': {
+				Node* sum = new AddBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, sum);
+				pool.add(sum);
+				break;
 			}
-		} else {
-			$$ = $1;
+			case '2': {
+				Node* sub = new SubBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, sub);
+				pool.add(sub);
+				break;
+			}
+			case '3': {
+				Node* mul = new MulBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, mul);
+				pool.add(mul);
+				break;
+			}
+			case '4': {
+				Node* divd = new DivBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, divd);
+				pool.add(divd);
+				break;
+			}
+			case '5': {
+				Node* mod = new ModBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, mod);
+				pool.add(mod);
+				break;
+			}
+			case '6': {
+				Node* expn = new ExpBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, expn);
+				pool.add(expn);
+				break;
+			}
+			case '7': {
+				Node* idivd = new IntDivBinaryNode(lhs, $3);
+				$$ = new AsgBinaryNode(lhs, idivd);
+				pool.add(idivd);
+				break;
+			}
+			default:
+				$$ = $1; break;
 		}
 		pool.add(lhs);
+		pool.add($$);
 	}
 	| testlist star_EQUAL {
 		IdentNode* lhs = dynamic_cast<IdentNode*>($1);
-		if ($2->isNull() || !lhs) {
-			$$ = $1;
-		} else {
-			$$ = new AsgBinaryNode(lhs, $2);
-			pool.add($$);
-		}
+		$$ = new AsgBinaryNode(lhs, $2);
+		pool.add($$);
 		pool.add(lhs);
 	}
 	;
@@ -601,7 +587,7 @@ atom // Used in: power
 	| BACKQUOTE testlist1 BACKQUOTE { $$ = nNull; }
 	| NAME {
 		$$ = new IdentNode($1);
-		delete $1;
+		delete[] $1;
 		pool.add($$);
 	}
 	| NUMBER { $$ = nNull; }
