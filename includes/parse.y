@@ -28,7 +28,8 @@ bool isOpEqual(const char*, const char*);
 %type<node> print_stmt opt_test test or_test and_test not_test opt_IF_ELSE
 %type<node> comparison expr xor_expr and_expr shift_expr
 %type<node> expr_stmt testlist star_EQUAL pick_yield_expr_testlist
-%type<node> pick_NEWLINE_stmt stmt simple_stmt if_stmt suite plus_stmt
+%type<node> pick_NEWLINE_stmt stmt simple_stmt suite plus_stmt compound_stmt small_stmt
+%type<node> if_stmt while_stmt for_stmt funcdef classdef decorated try_stmt
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -78,11 +79,11 @@ decorators // Used in: decorators, decorated
 	| decorator
 	;
 decorated // Used in: compound_stmt
-	: decorators classdef
-	| decorators funcdef
+	: decorators classdef { $$ = nNull; }
+	| decorators funcdef { $$ = nNull; }
 	;
 funcdef // Used in: decorated, compound_stmt
-	: DEF NAME parameters COLON suite
+	: DEF NAME parameters COLON suite { $$ = nNull; }
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -139,13 +140,13 @@ star_SEMI_small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	: expr_stmt
 	| print_stmt
-	| del_stmt
-	| pass_stmt
-	| flow_stmt
-	| import_stmt
-	| global_stmt
-	| exec_stmt
-	| assert_stmt
+	| del_stmt { $$ = nNull; }
+	| pass_stmt { $$ = nNull; }
+	| flow_stmt { $$ = nNull; }
+	| import_stmt { $$ = nNull; }
+	| global_stmt { $$ = nNull; }
+	| exec_stmt { $$ = nNull; }
+	| assert_stmt { $$ = nNull; }
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist {
@@ -370,33 +371,33 @@ assert_stmt // Used in: small_stmt
 	;
 compound_stmt // Used in: stmt
 	: if_stmt
-	| while_stmt
-	| for_stmt
-	| try_stmt
-	| with_stmt
-	| funcdef
-	| classdef
-	| decorated
+	| while_stmt { $$ = nNull; }
+	| for_stmt { $$ = nNull; }
+	| try_stmt { $$ = nNull; }
+	| with_stmt { $$ = nNull; }
+	| funcdef { $$ = nNull; }
+	| classdef { $$ = nNull; }
+	| decorated { $$ = nNull; }
 	;
 if_stmt // Used in: compound_stmt
-	: IF test COLON suite star_ELIF ELSE COLON suite
-	| IF test COLON suite star_ELIF
+	: IF test COLON suite star_ELIF ELSE COLON suite { $$ = nNull; }
+	| IF test COLON suite star_ELIF { $$ = nNull; }
 	;
 star_ELIF // Used in: if_stmt, star_ELIF
 	: star_ELIF ELIF test COLON suite
 	| %empty
 	;
 while_stmt // Used in: compound_stmt
-	: WHILE test COLON suite ELSE COLON suite
-	| WHILE test COLON suite
+	: WHILE test COLON suite ELSE COLON suite { $$ = nNull; }
+	| WHILE test COLON suite { $$ = nNull; }
 	;
 for_stmt // Used in: compound_stmt
-	: FOR exprlist IN testlist COLON suite ELSE COLON suite
-	| FOR exprlist IN testlist COLON suite
+	: FOR exprlist IN testlist COLON suite ELSE COLON suite { $$ = nNull; }
+	| FOR exprlist IN testlist COLON suite { $$ = nNull; }
 	;
 try_stmt // Used in: compound_stmt
-	: TRY COLON suite plus_except opt_ELSE opt_FINALLY
-	| TRY COLON suite FINALLY COLON suite
+	: TRY COLON suite plus_except opt_ELSE opt_FINALLY { $$ = nNull; }
+	| TRY COLON suite FINALLY COLON suite { $$ = nNull; }
 	;
 plus_except // Used in: try_stmt, plus_except
 	: plus_except except_clause COLON suite
@@ -483,6 +484,18 @@ comparison // Used in: not_test, comparison
 		if (isOpEqual($2, "<")) {
 			$$ = new LessBinaryNode($1, $3);
 			pool.add($$);
+		} else if (isOpEqual($2, ">")) {
+			$$ = new GreaterBinaryNode($1, $3);
+			pool.add($$);
+		} else if (isOpEqual($2, "==")) {
+			$$ = new EqualBinaryNode($1, $3);
+			pool.add($$);
+		} else if (isOpEqual($2, ">=")) {
+			$$ = new GrtEqBinaryNode($1, $3);
+			pool.add($$);
+		} else if (isOpEqual($2, "<=")) {
+			$$ = new lesEqBinaryNode($1, $3);
+			pool.add($$);
 		}
 	}
 	;
@@ -492,7 +505,7 @@ comp_op // Used in: comparison
 	| EQEQUAL { $$ = "=="; }
 	| GREATEREQUAL { $$ = ">="; }
 	| LESSEQUAL { $$ = "<="; }
-	| GRLT { $$ = "<>"; }
+	| GRLT { $$ = ""; }
 	| NOTEQUAL { $$ = "!="; }
 	| IN { $$ = ""; }
 	| NOT IN { $$ = ""; }
@@ -697,8 +710,8 @@ pick_for_test // Used in: dictorsetmaker
 	| star_COMMA_test opt_COMMA
 	;
 classdef // Used in: decorated, compound_stmt
-	: CLASS NAME LPAR opt_testlist RPAR COLON suite
-	| CLASS NAME COLON suite
+	: CLASS NAME LPAR opt_testlist RPAR COLON suite { $$ = nNull; }
+	| CLASS NAME COLON suite { $$ = nNull; }
 	;
 opt_testlist // Used in: classdef
 	: testlist

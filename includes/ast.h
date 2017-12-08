@@ -129,3 +129,27 @@ public:
   LessBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {}
   virtual const Literal* eval() const;
 };
+
+class GreaterBinaryNode : public BinaryNode {
+public:
+  GreaterBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class EqualBinaryNode : public BinaryNode {
+public:
+  EqualBinaryNode(Node* left, Node* right) : BinaryNode(left, right) {}
+  virtual const Literal* eval() const;
+};
+
+class GrtEqBinaryNode : public BinaryNode {
+public:
+  GrtEqBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+  virtual const Literal* eval() const;
+};
+
+class lesEqBinaryNode : public BinaryNode {
+public:
+  lesEqBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+  virtual const Literal* eval() const;
+};

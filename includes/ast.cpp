@@ -115,3 +115,39 @@ const Literal* LessBinaryNode::eval() const {
   const Literal* y = right->eval();
   return (*x) < (*y);
 }
+
+const Literal* GreaterBinaryNode::eval() const {
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return (*x) > (*y);
+}
+
+const Literal* EqualBinaryNode::eval() const {
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return (*x) == (*y);
+}
+
+const Literal* GrtEqBinaryNode::eval() const {
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return (*x) >= (*y);
+}
+
+const Literal* lesEqBinaryNode::eval() const {
+  if (!left || !right) {
+    throw "error";
+  }
+  const Literal* x = left->eval();
+  const Literal* y = right->eval();
+  return (*x) <= (*y);
+}
