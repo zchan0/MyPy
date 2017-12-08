@@ -37,3 +37,4 @@ poolOfNodes.o: includes/poolOfNodes.cpp includes/poolOfNodes.h \
 clean:
 	rm -f run *.o parse.tab.c lex.yy.c
 	rm -f parse.tab.h
+	rm -f cases/*.out
