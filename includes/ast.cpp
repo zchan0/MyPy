@@ -32,14 +32,11 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
   SymbolTable::getInstance().setValue(n, res);
 }
-
-
 const Literal* AsgBinaryNode::eval() const {
   if (!left || !right) {
     throw "error";
   }
   const Literal* res = right->eval();
-
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
   SymbolTable::getInstance().setValue(n, res);
   return res;

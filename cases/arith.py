@@ -1,3 +1,20 @@
+x = 10.0
+x += 2
+print x
+x -= 10
+print x
+x *= 2
+print x
+x /= 4
+print x
+x %= 2
+print x
+x = 3
+x **= 2.0
+print x
+x //= 10
+print x
+
 print 2 + 3 * 5
 print -2.0
 print 1.0 - 2
