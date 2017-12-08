@@ -7,3 +7,6 @@ print -1**2
 
 print 3.0 // 2
 print 3.0 / 2
+
+print -5%2
+print 5%-2

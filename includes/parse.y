@@ -465,7 +465,8 @@ term // Used in: arith_expr, term
 				$$ = new DivBinaryNode($1, $3);
 				pool.add($$); break;
 			case '%':
-				$$ = nNull; break;
+				$$ = new ModBinaryNode($1, $3);
+				pool.add($$); break;
 			case '@':
 				$$ = new IntDivBinaryNode($1, $3);
 				pool.add($$); break;
