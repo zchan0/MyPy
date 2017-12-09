@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <list>
 #include "literal.h"
 
 extern void yyerror(const char*);
@@ -70,11 +71,11 @@ public:
   SuiteNode() : Node(), stmts() {}
   virtual ~SuiteNode() {}
   virtual const Literal* eval() const;
-  void push(Node*);
+  void append(Node*);
   SuiteNode(const SuiteNode&) = delete;
   SuiteNode& operator=(const SuiteNode&) = delete;
 private:
-  std::vector<Node*> stmts;
+  std::list<Node*> stmts;
 };
 
 class UnaryNode : public Node {

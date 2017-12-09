@@ -14,7 +14,7 @@ const Literal* IdentNode::eval() const {
 
 const Literal* PrintNode::eval() const {
   if (node->isNull()) {
-    return nullptr;
+    throw std::string("print node is null");
   }
   node->eval()->print();
   return nullptr;
@@ -23,11 +23,9 @@ const Literal* PrintNode::eval() const {
 const Literal* IfNode::eval() const {
   if (comparison->isNull()) {
     throw std::string("comparison is null");
-    return nullptr;
   }
   if (!comparison->eval()) {
     throw std::string("comparison cannot evaluate");
-    return nullptr;
   }
 
   if (comparison->eval()->boolValue()) {
@@ -49,7 +47,7 @@ const Literal* SuiteNode::eval() const {
   return nullptr;
 }
 
-void SuiteNode::push(Node* n) {
+void SuiteNode::append(Node* n) {
   stmts.push_back(n);
 }
 

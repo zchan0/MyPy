@@ -29,7 +29,7 @@ bool isOpEqual(const char*, const char*);
 %type<node> comparison expr xor_expr and_expr shift_expr
 %type<node> expr_stmt testlist star_EQUAL pick_yield_expr_testlist
 %type<node> pick_NEWLINE_stmt stmt simple_stmt suite plus_stmt compound_stmt small_stmt
-%type<node> if_stmt while_stmt for_stmt funcdef classdef decorated try_stmt
+%type<node> if_stmt
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -59,10 +59,7 @@ file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
-	: NEWLINE {
-		$$ = new PrintNode(nNull);
-		pool.add($$);
-	}
+	: NEWLINE { $$ = nNull; }
 	| stmt {
 		if (!$1->isNull()) {
 			$1->eval();
@@ -86,11 +83,11 @@ decorators // Used in: decorators, decorated
 	| decorator
 	;
 decorated // Used in: compound_stmt
-	: decorators classdef { $$ = nNull; }
-	| decorators funcdef { $$ = nNull; }
+	: decorators classdef
+	| decorators funcdef
 	;
 funcdef // Used in: decorated, compound_stmt
-	: DEF NAME parameters COLON suite { $$ = nNull; }
+	: DEF NAME parameters COLON suite
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -366,16 +363,16 @@ star_ELIF // Used in: if_stmt, star_ELIF
 	| %empty
 	;
 while_stmt // Used in: compound_stmt
-	: WHILE test COLON suite ELSE COLON suite { $$ = nNull; }
-	| WHILE test COLON suite { $$ = nNull; }
+	: WHILE test COLON suite ELSE COLON suite
+	| WHILE test COLON suite
 	;
 for_stmt // Used in: compound_stmt
-	: FOR exprlist IN testlist COLON suite ELSE COLON suite { $$ = nNull; }
-	| FOR exprlist IN testlist COLON suite { $$ = nNull; }
+	: FOR exprlist IN testlist COLON suite ELSE COLON suite
+	| FOR exprlist IN testlist COLON suite
 	;
 try_stmt // Used in: compound_stmt
-	: TRY COLON suite plus_except opt_ELSE opt_FINALLY { $$ = nNull; }
-	| TRY COLON suite FINALLY COLON suite { $$ = nNull; }
+	: TRY COLON suite plus_except opt_ELSE opt_FINALLY
+	| TRY COLON suite FINALLY COLON suite
 	;
 plus_except // Used in: try_stmt, plus_except
 	: plus_except except_clause COLON suite
@@ -413,19 +410,24 @@ opt_AS_COMMA // Used in: except_clause
 	| %empty
 	;
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
-	: simple_stmt
+	: simple_stmt {
+		SuiteNode* suite = new SuiteNode();
+		suite->append($1);
+		$$ = suite;
+		delete suite;
+		pool.add($$);
+	}
 	| NEWLINE INDENT plus_stmt DEDENT { $$ = $3; }
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: plus_stmt stmt {
-		$$ = dynamic_cast<SuiteNode*>($1);
-		if ($$) {
-			((SuiteNode*)$$)->push($2);
-		}
+		static_cast<SuiteNode*>($1)->append($2);
+		$$ = $1;
 	}
 	| stmt {
 		$$ = new SuiteNode();
-		((SuiteNode*)$$)->push($1);
+		static_cast<SuiteNode*>($$)->append($1);
+		pool.add($$);
 	}
 	;
 testlist_safe // Used in: list_for
@@ -696,8 +698,8 @@ pick_for_test // Used in: dictorsetmaker
 	| star_COMMA_test opt_COMMA
 	;
 classdef // Used in: decorated, compound_stmt
-	: CLASS NAME LPAR opt_testlist RPAR COLON suite { $$ = nNull; }
-	| CLASS NAME COLON suite { $$ = nNull; }
+	: CLASS NAME LPAR opt_testlist RPAR COLON suite
+	| CLASS NAME COLON suite
 	;
 opt_testlist // Used in: classdef
 	: testlist
