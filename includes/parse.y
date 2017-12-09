@@ -183,8 +183,12 @@ expr_stmt // Used in: small_stmt
 		}
 	}
 	| testlist star_EQUAL {
-		$$ = new AsgBinaryNode($1, $2);
-		pool.add($$);
+		if ($2->isNull()) {
+			$$ = $1;
+		} else {
+			$$ = new AsgBinaryNode($1, $2);
+			pool.add($$);
+		}
 	}
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
