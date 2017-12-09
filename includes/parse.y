@@ -196,7 +196,14 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	| testlist
 	;
 star_EQUAL // Used in: expr_stmt, star_EQUAL
-	: star_EQUAL EQUAL pick_yield_expr_testlist { $$ = $3; }
+	: EQUAL pick_yield_expr_testlist star_EQUAL  {
+		if ($3->isNull()) {
+			$$ = $2;
+		} else {
+			$$ = new AsgBinaryNode($2, $3);
+			pool.add($$);
+		}
+	}
 	| %empty { $$ = nNull; }
 	;
 augassign // Used in: expr_stmt

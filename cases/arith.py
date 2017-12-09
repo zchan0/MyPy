@@ -1,3 +1,7 @@
+a = b = c = 11
+print a
+print b
+print c
 x = 10.0
 x += 2
 print x
