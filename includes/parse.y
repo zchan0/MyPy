@@ -157,58 +157,29 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist {
+		Node* res;
 		switch($2) {
-			case '1': {
-				Node* sum = new AddBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, sum);
-				pool.add($1);
-				delete sum;
-				break;
-			}
-			case '2': {
-				Node* sub = new SubBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, sub);
-				pool.add($1);
-				delete sub;
-				break;
-			}
-			case '3': {
-				Node* mul = new MulBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, mul);
-				pool.add($1);
-				delete mul;
-				break;
-			}
-			case '4': {
-				Node* divd = new DivBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, divd);
-				pool.add($1);
-				delete divd;
-				break;
-			}
-			case '5': {
-				Node* mod = new ModBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, mod);
-				pool.add($1);
-				delete mod;
-				break;
-			}
-			case '6': {
-				Node* expn = new ExpBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, expn);
-				pool.add($1);
-				delete expn;
-				break;
-			}
-			case '7': {
-				Node* idivd = new IntDivBinaryNode($1, $3);
-				$1 = new AsgBinaryNode($1, idivd);
-				pool.add($1);
-				delete idivd;
-				break;
-			}
+			case '1':
+				res = new AddBinaryNode($1, $3); break;
+			case '2':
+				res = new SubBinaryNode($1, $3); break;
+			case '3':
+				res = new MulBinaryNode($1, $3); break;
+			case '4':
+				res = new DivBinaryNode($1, $3); break;
+			case '5':
+				res = new ModBinaryNode($1, $3); break;
+			case '6':
+				res = new ExpBinaryNode($1, $3); break;
+			case '7':
+				res = new IntDivBinaryNode($1, $3); break;
 			default:
-				$$ = nNull; break;
+				res = nNull; break;
+		}
+		if (!res->isNull()) {
+			$1 = new AsgBinaryNode($1, res);
+			pool.add($1);
+			pool.add(res);
 		}
 	}
 	| testlist star_EQUAL {
