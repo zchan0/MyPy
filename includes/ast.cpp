@@ -37,6 +37,22 @@ const Literal* IfNode::eval() const {
   }
 }
 
+const Literal* SuiteNode::eval() const {
+  if (stmts.empty()) {
+    return nullptr;
+  }
+
+  for (Node* stmt : stmts) {
+    stmt->eval();
+  }
+
+  return nullptr;
+}
+
+void SuiteNode::push(Node* n) {
+  stmts.push_back(n);
+}
+
 const Literal* UnaryNode::eval() const {
   const Literal* absVal = node->eval();
   return absVal->unopVal(op);

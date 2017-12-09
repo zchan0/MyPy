@@ -65,6 +65,18 @@ private:
   Node* elseBranch;
 };
 
+class SuiteNode : public Node {
+public:
+  SuiteNode() : Node(), stmts() {}
+  virtual ~SuiteNode() {}
+  virtual const Literal* eval() const;
+  void push(Node*);
+  SuiteNode(const SuiteNode&) = delete;
+  SuiteNode& operator=(const SuiteNode&) = delete;
+private:
+  std::vector<Node*> stmts;
+};
+
 class UnaryNode : public Node {
 public:
   UnaryNode(char c, Node* n) : Node(), op(c), node(n) {}

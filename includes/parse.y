@@ -435,8 +435,16 @@ suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, p
 	| NEWLINE INDENT plus_stmt DEDENT { $$ = $3; }
 	;
 plus_stmt // Used in: suite, plus_stmt
-	: plus_stmt stmt
-	| stmt
+	: plus_stmt stmt {
+		$$ = dynamic_cast<SuiteNode*>($1);
+		if ($$) {
+			((SuiteNode*)$$)->push($2);
+		}
+	}
+	| stmt {
+		$$ = new SuiteNode();
+		((SuiteNode*)$$)->push($1);
+	}
 	;
 testlist_safe // Used in: list_for
 	: old_test plus_COMMA_old_test opt_COMMA
