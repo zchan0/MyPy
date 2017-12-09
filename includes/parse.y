@@ -59,8 +59,15 @@ file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
-	: NEWLINE
-	| stmt
+	: NEWLINE {
+		$$ = new PrintNode(nNull);
+		pool.add($$);
+	}
+	| stmt {
+		if (!$1->isNull()) {
+			$1->eval();
+		}
+	}
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: star_NEWLINE_stmt pick_NEWLINE_stmt
@@ -150,61 +157,63 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist {
-		IdentNode* lhs = dynamic_cast<IdentNode*>($1);
 		switch($2) {
 			case '1': {
-				Node* sum = new AddBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, sum);
-				pool.add(sum);
+				Node* sum = new AddBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, sum);
+				pool.add($1);
+				delete sum;
 				break;
 			}
 			case '2': {
-				Node* sub = new SubBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, sub);
-				pool.add(sub);
+				Node* sub = new SubBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, sub);
+				pool.add($1);
+				delete sub;
 				break;
 			}
 			case '3': {
-				Node* mul = new MulBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, mul);
-				pool.add(mul);
+				Node* mul = new MulBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, mul);
+				pool.add($1);
+				delete mul;
 				break;
 			}
 			case '4': {
-				Node* divd = new DivBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, divd);
-				pool.add(divd);
+				Node* divd = new DivBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, divd);
+				pool.add($1);
+				delete divd;
 				break;
 			}
 			case '5': {
-				Node* mod = new ModBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, mod);
-				pool.add(mod);
+				Node* mod = new ModBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, mod);
+				pool.add($1);
+				delete mod;
 				break;
 			}
 			case '6': {
-				Node* expn = new ExpBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, expn);
-				pool.add(expn);
+				Node* expn = new ExpBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, expn);
+				pool.add($1);
+				delete expn;
 				break;
 			}
 			case '7': {
-				Node* idivd = new IntDivBinaryNode(lhs, $3);
-				$$ = new AsgBinaryNode(lhs, idivd);
-				pool.add(idivd);
+				Node* idivd = new IntDivBinaryNode($1, $3);
+				$1 = new AsgBinaryNode($1, idivd);
+				pool.add($1);
+				delete idivd;
 				break;
 			}
 			default:
-				$$ = $1; break;
+				$$ = nNull; break;
 		}
-		pool.add(lhs);
-		pool.add($$);
 	}
 	| testlist star_EQUAL {
-		IdentNode* lhs = dynamic_cast<IdentNode*>($1);
-		$$ = new AsgBinaryNode(lhs, $2);
+		$$ = new AsgBinaryNode($1, $2);
 		pool.add($$);
-		pool.add(lhs);
 	}
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
@@ -232,7 +241,6 @@ augassign // Used in: expr_stmt
 print_stmt // Used in: small_stmt
 	: PRINT opt_test {
 		$$ = new PrintNode($2);
-		$$->eval();
 		pool.add($$);
 	}
 	| PRINT RIGHTSHIFT test opt_test_2 { // print >> sys.stderr, '--'
