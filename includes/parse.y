@@ -370,8 +370,14 @@ compound_stmt // Used in: stmt
 	| decorated { $$ = nNull; }
 	;
 if_stmt // Used in: compound_stmt
-	: IF test COLON suite star_ELIF ELSE COLON suite { $$ = nNull; }
-	| IF test COLON suite star_ELIF { $$ = nNull; }
+	: IF test COLON suite star_ELIF ELSE COLON suite {
+		$$ = new IfNode($2, $4, $8);
+		pool.add($$);
+	}
+	| IF test COLON suite star_ELIF {
+		$$ = new IfNode($2, $4, nNull);
+		pool.add($$);
+	}
 	;
 star_ELIF // Used in: if_stmt, star_ELIF
 	: star_ELIF ELIF test COLON suite
@@ -425,12 +431,12 @@ opt_AS_COMMA // Used in: except_clause
 	| %empty
 	;
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
-	: simple_stmt { $$ = nNull; }
-	| NEWLINE INDENT plus_stmt DEDENT { $$ = nNull; }
+	: simple_stmt
+	| NEWLINE INDENT plus_stmt DEDENT { $$ = $3; }
 	;
 plus_stmt // Used in: suite, plus_stmt
-	: plus_stmt stmt { $$ = nNull; }
-	| stmt { $$ = nNull; }
+	: plus_stmt stmt
+	| stmt
 	;
 testlist_safe // Used in: list_for
 	: old_test plus_COMMA_old_test opt_COMMA

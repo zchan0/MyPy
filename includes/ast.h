@@ -50,6 +50,21 @@ private:
   Node* node;
 };
 
+class IfNode : public Node {
+public:
+  IfNode(Node* cmp, Node* if_branch, Node* else_branch) : Node(), comparison(cmp), ifBranch(if_branch), elseBranch(else_branch) {}
+  virtual ~IfNode() {}
+  virtual const Literal* eval() const;
+  Node* getIfBranch() const { return ifBranch; }
+  Node* getElseBranch() const { return elseBranch; }
+  IfNode(const IfNode&) = delete;
+  IfNode& operator=(const IfNode&) = delete;
+private:
+  Node* comparison; // cannot be null
+  Node* ifBranch;
+  Node* elseBranch;
+};
+
 class UnaryNode : public Node {
 public:
   UnaryNode(char c, Node* n) : Node(), op(c), node(n) {}

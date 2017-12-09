@@ -14,11 +14,27 @@ const Literal* IdentNode::eval() const {
 
 const Literal* PrintNode::eval() const {
   if (node->isNull()) {
-    std::cout << "print NullNode" << std::endl;
     return nullptr;
   }
   node->eval()->print();
   return nullptr;
+}
+
+const Literal* IfNode::eval() const {
+  if (comparison->isNull()) {
+    throw std::string("comparison is null");
+    return nullptr;
+  }
+  if (!comparison->eval()) {
+    throw std::string("comparison cannot evaluate");
+    return nullptr;
+  }
+
+  if (comparison->eval()->boolValue()) {
+    return ifBranch->eval();
+  } else {
+    return elseBranch->eval();
+  }
 }
 
 const Literal* UnaryNode::eval() const {

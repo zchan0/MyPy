@@ -58,9 +58,9 @@ public:
   virtual const Literal* opLessEq(int) const = 0;
 
   // val
-
   virtual const Literal* eval() const = 0;
   virtual const Literal* unopVal(char op) const = 0;
+  virtual bool boolValue() const = 0;
 
   virtual void print() const {
     std::cout << "No Way" << std::endl;
@@ -275,6 +275,10 @@ public:
       default:
         return this;
     };
+  }
+
+  virtual bool boolValue() const {
+    return val != 0.0; // true: not equal to 0
   }
 
   virtual void print() const {
@@ -506,6 +510,9 @@ public:
       default:
         return this;
     };
+  }
+  virtual bool boolValue() const {
+    return val != 0;
   }
 
   virtual void print() const {
