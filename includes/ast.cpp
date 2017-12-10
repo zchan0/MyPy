@@ -5,10 +5,10 @@
 #include <cstdlib>
 #include <iomanip>
 #include "ast.h"
-#include "symbolTable.h"
+#include "tableManager.h"
 
 const Literal* IdentNode::eval() const {
-  const Literal* val = SymbolTable::getInstance().getValue(ident);
+  const Literal* val = TableManager::getInstance().getValue(ident);
   return val;
 }
 
@@ -60,7 +60,7 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   BinaryNode(left, right) {
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
-  SymbolTable::getInstance().setValue(n, res);
+  TableManager::getInstance().setEntry(n, res);
 }
 const Literal* AsgBinaryNode::eval() const {
   if (left->isNull() || right->isNull()) {
@@ -68,7 +68,7 @@ const Literal* AsgBinaryNode::eval() const {
   }
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
-  SymbolTable::getInstance().setValue(n, res);
+  TableManager::getInstance().setEntry(n, res);
   return res;
 }
 
