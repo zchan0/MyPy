@@ -98,7 +98,7 @@ funcdef // Used in: decorated, compound_stmt
 		} else {
 			$$ = new FuncNode($2, $5);
 			pool.add($$);
-			TableManager::getInstance().setNode($2, $$);
+			TableManager::getInstance().setFunc($2, $$);
 			delete $2;
 		}
 	}

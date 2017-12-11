@@ -32,12 +32,12 @@ int TableManager::getCurrentScope() const {
     return currentScope;
 }
 
-const Node* TableManager::getNode(const std::string& name) {
-    const Node* res = tables[currentScope]->getNode(name);
+const Node* TableManager::getFunc(const std::string& name) {
+    const Node* res = tables[currentScope]->getFunc(name);
     if (!res) {
         int lookupScope = currentScope - 1;
         while (lookupScope >= 0) {
-            res = tables[lookupScope]->getNode(name);
+            res = tables[lookupScope]->getFunc(name);
             if (res) return res;
             --lookupScope;
         }
@@ -60,8 +60,8 @@ const Literal* TableManager::getValue(const std::string& name) {
     return res;
 }
 
-void TableManager::setNode(const std::string& name, const Node* node) {
-    tables[currentScope]->setNode(name, node);
+void TableManager::setFunc(const std::string& name, const Node* node) {
+    tables[currentScope]->setFunc(name, node);
 }
 
 void TableManager::setValue(const std::string& name, const Literal* val) {

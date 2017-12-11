@@ -4,3 +4,4 @@
 *.yy.c
 cases/*.out
 run
+*.plist

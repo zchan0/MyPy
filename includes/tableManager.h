@@ -13,9 +13,9 @@ public:
     const SymbolTable* currentTable();
     int getCurrentScope() const;
 
-    const Node* getNode(const std::string&);
+    const Node* getFunc(const std::string&);
     const Literal* getValue(const std::string&);
-    void setNode(const std::string&, const Node*);
+    void setFunc(const std::string&, const Node*);
     void setValue(const std::string&, const Literal*);
     void print() const;
 

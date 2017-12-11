@@ -14,11 +14,11 @@ public:
   SymbolTable(): nodes(), symbols() {}
   ~SymbolTable() {}
 
-  const Node* getNode(const std::string& name) const;
+  const Node* getFunc(const std::string& name) const;
   const Literal* getValue(const std::string& name) const;
-  void setNode(const std::string& name, const Node* node);
+  void setFunc(const std::string& name, const Node* node);
   void setValue(const std::string& name, const Literal* val);
-  bool findNode(const std::string&) const;
+  bool findFunc(const std::string&) const;
   bool findSymbol(const std::string&) const;
 
   void print() const;

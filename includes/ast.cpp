@@ -76,7 +76,7 @@ const Literal* CallNode::eval() const {
   }
   std::string funcName = static_cast<IdentNode*>(ident)->getIdent();
   // if no function named name, Tablemanager will throw exception
-  const Node* func = TableManager::getInstance().getNode(funcName);
+  const Node* func = TableManager::getInstance().getFunc(funcName);
   TableManager::getInstance().pushScope();
   const Literal* res = func->eval();
   TableManager::getInstance().popScope();
