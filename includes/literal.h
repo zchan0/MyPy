@@ -522,3 +522,141 @@ private:
   int val;
 };
 
+class NoneLiteral: public Literal {
+public:
+  NoneLiteral(): val("None") {}
+  virtual const Literal* operator+(const Literal& rhs) const  {
+    return rhs.opPlus(0);
+  }
+  virtual const Literal* opPlus(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for +: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opPlus(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for +: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator-(const Literal& rhs) const  {
+    return rhs.opSubt(0);
+  }
+  virtual const Literal* opSubt(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for -: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opSubt(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for -: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator*(const Literal& rhs) const  {
+    return rhs.opMult(0);
+  }
+  virtual const Literal* opMult(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for *: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opMult(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for *: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator/(const Literal& rhs) const  {
+    return rhs.opDiv(0);
+  }
+  virtual const Literal* opDiv(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for /: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opDiv(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for /: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* intDiv(const Literal& rhs) const {
+    return rhs.opIntDiv(0);
+  }
+  virtual const Literal* opIntDiv(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for //: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opIntDiv(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for //: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator%(const Literal& rhs) const {
+    return rhs.opMod(0);
+  }
+  virtual const Literal* opMod(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for %: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opMod(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for %: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator^(const Literal& rhs) const {
+    return rhs.opExp(0);
+  }
+  virtual const Literal* opExp(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for **: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opExp(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for **: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator<(const Literal& rhs) const {
+    return rhs.opLess(0);
+  }
+  virtual const Literal* opLess(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for <: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opLess(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for <: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator>(const Literal& rhs) const {
+    return rhs.opGreater(0);
+  }
+  virtual const Literal* opGreater(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for >: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opGreater(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for >: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator==(const Literal& rhs) const {
+    return rhs.opEqual(0);
+  }
+  virtual const Literal* opEqual(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for ==: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opEqual(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for ==: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator>=(const Literal& rhs) const {
+    return rhs.opGrtEq(0);
+  }
+  virtual const Literal* opGrtEq(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for >=: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opGrtEq(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for >=: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* operator<=(const Literal& rhs) const {
+    return rhs.opLessEq(0);
+  }
+  virtual const Literal* opLessEq(float lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for <=: NoneType and ") + std::to_string(lhs);
+  }
+  virtual const Literal* opLessEq(int lhs) const {
+    throw std::string("TypeError: unsupported operand type(s) for <=: NoneType and ") + std::to_string(lhs);
+  }
+
+  virtual const Literal* eval() const { return this; }
+  virtual const Literal* unopVal(char op) const {
+    throw std::string("TypeError: unsupported operation on NoneType for") + std::to_string(op);
+  }
+  virtual bool boolValue() const {
+    return false;
+  }
+
+  virtual void print() const {
+    std::cout << val << std::endl;
+  }
+
+private:
+  std::string val;
+};
