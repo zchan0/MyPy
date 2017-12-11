@@ -27,9 +27,9 @@ bool isOpEqual(const char*, const char*);
 %type<node> atom power factor term arith_expr
 %type<node> print_stmt opt_test test or_test and_test not_test opt_IF_ELSE
 %type<node> comparison expr xor_expr and_expr shift_expr
-%type<node> expr_stmt testlist star_EQUAL pick_yield_expr_testlist
+%type<node> expr_stmt testlist star_EQUAL star_trailer trailer pick_yield_expr_testlist
 %type<node> pick_NEWLINE_stmt stmt simple_stmt suite plus_stmt compound_stmt small_stmt
-%type<node> if_stmt
+%type<node> if_stmt funcdef
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -87,7 +87,13 @@ decorated // Used in: compound_stmt
 	| decorators funcdef
 	;
 funcdef // Used in: decorated, compound_stmt
-	: DEF NAME parameters COLON suite
+	: DEF NAME parameters COLON suite {
+		IdentNode* ident = new IdentNode($2);
+		$$ = new FuncNode(ident, $5);
+		pool.add($$);
+		pool.add(ident);
+		delete[] $2;
+	}
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -344,7 +350,7 @@ compound_stmt // Used in: stmt
 	| for_stmt { $$ = nNull; }
 	| try_stmt { $$ = nNull; }
 	| with_stmt { $$ = nNull; }
-	| funcdef { $$ = nNull; }
+	| funcdef
 	| classdef { $$ = nNull; }
 	| decorated { $$ = nNull; }
 	;
@@ -579,12 +585,18 @@ power // Used in: factor
 		pool.add($$);
 	}
 	| atom star_trailer {	// star_trailer: zero or more (), [], .xxx
-		$$ = $1;
+		if (!$2) {
+			$$ = $1;
+		} else {
+			// NAME reduce to atom
+			$$ = new CallNode($1);
+			pool.add($$);
+		}
 	}
 	;
 star_trailer // Used in: power, star_trailer
-	: star_trailer trailer
-	| %empty
+	: star_trailer trailer { $$ = $2; }
+	| %empty { $$ = nullptr; }
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR { $$ = nNull; }
@@ -640,9 +652,11 @@ lambdef // Used in: test
 	| LAMBDA COLON test
 	;
 trailer // Used in: star_trailer
-	: LPAR opt_arglist RPAR
-	| LSQB subscriptlist RSQB
-	| DOT NAME
+	: LPAR opt_arglist RPAR { $$ = nNull; }
+	| LSQB subscriptlist RSQB { $$ = nNull; }
+	| DOT NAME {
+		delete[] $2;
+	}
 	;
 subscriptlist // Used in: trailer
 	: subscript star_COMMA_subscript COMMA
