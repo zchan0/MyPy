@@ -6,40 +6,77 @@ TableManager& TableManager::getInstance() {
 }
 
 TableManager::~TableManager() {
-    while (!tableStack.empty()) {
-        delete tableStack.top();
-        tableStack.pop();
+    for (SymbolTable* table : tables) {
+        if (table != nullptr) delete table;
     }
 }
 
 void TableManager::pushScope() {
-    if (tableStack.size() >= stackLimit) return;
-    SymbolTable* table = new SymbolTable(tableStack.top());
-    tableStack.push(table);
+    if (tables.size() >= stackLimit) return;
+    SymbolTable* table = new SymbolTable();
+    tables.push_back(table);
+    ++currentScope;
 }
 
 void TableManager::popScope() {
-    if (!tableStack.empty()) {
-        tableStack.pop();
-    }
+    if (currentScope == 0) return;
+    tables.pop_back();
+    --currentScope;
 }
 
-const SymbolTable* TableManager::currentTable() {
-    return tableStack.top();
+bool TableManager::needReturnValue() const {
+    return tables[currentScope]->findSymbol("__RETURN__");
+}
+
+const SymbolTable* TableManager::localScope() {
+    return tables[currentScope];
 }
 
 const Node* TableManager::getNode(const std::string& name) {
-    return tableStack.top()->getNode(name);
+    const Node* res = tables[currentScope]->getNode(name);
+    if (!res) {
+        int lookupScope = currentScope - 1;
+        while (lookupScope >= 0) {
+            res = tables[lookupScope]->getNode(name);
+            if (res) return res;
+            --lookupScope;
+        }
+        throw std::string("NameError: name ") + name + std::string(" is not defined");
+    }
+    return res;
 }
 
 const Literal* TableManager::getValue(const std::string& name) {
-    return tableStack.top()->getValue(name);
+    const Literal* res = tables[currentScope]->getValue(name);
+    if (!res) {
+        int lookupScope = currentScope - 1;
+        while (lookupScope >= 0) {
+            res = tables[lookupScope]->getValue(name);
+            if (res) return res;
+            --lookupScope;
+        }
+        throw std::string("NameError: name ") + name + std::string(" is not defined");
+    }
+    return res;
 }
 
-void TableManager::setEntry(const std::string& name, const Node* node) {
-    tableStack.top()->setNode(name, node);
+void TableManager::setNode(const std::string& name, const Node* node) {
+    tables[currentScope]->setNode(name, node);
 }
 
-void TableManager::setEntry(const std::string& name, const Literal* val) {
-    tableStack.top()->setValue(name, val);
+void TableManager::setValue(const std::string& name, const Literal* val) {
+    tables[currentScope]->setValue(name, val);
+}
+
+const Literal* TableManager::getReturnValue() {
+    return tables[currentScope]->getValue("__RETURN__");
+}
+
+void TableManager::setReturnValue(const Literal* val) {
+    tables[currentScope]->setValue("__RETURN__", val);
+}
+
+void TableManager::print() const {
+    std::cout << "current scope: " << currentScope << std::endl;
+    tables[currentScope]->print();
 }
