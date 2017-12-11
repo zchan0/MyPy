@@ -1,5 +1,6 @@
 #include "node.h"
-#include "poolOfNodes.h"
+#include "literal.h"
+
 
 PoolOfNodes& PoolOfNodes::getInstance() {
   static PoolOfNodes pool;
@@ -8,7 +9,9 @@ PoolOfNodes& PoolOfNodes::getInstance() {
 
 void PoolOfNodes::drainThePool() {
   for ( const Node* node : nodePool ) {
-    delete node;
+    if (node != nullptr) {
+      delete node;
+    }
   }
 }
 

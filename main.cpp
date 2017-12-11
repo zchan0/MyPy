@@ -65,7 +65,7 @@ int main(int argc, char * argv[]) {
     }
   }
   catch ( const std::string& msg ) {
-    std::cout << "oops: " << msg << std::endl;
+    std::cout << msg << std::endl;
     return EXIT_FAILURE;
   }
   catch ( ... ) {
