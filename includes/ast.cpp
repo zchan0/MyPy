@@ -42,6 +42,9 @@ const Literal* SuiteNode::eval() const {
 
   for (Node* stmt : stmts) {
     stmt->eval();
+    if (TableManager::getInstance().needReturnValue()) {
+      return TableManager::getInstance().getReturnValue();
+    }
   }
 
   return nullptr;
@@ -49,6 +52,45 @@ const Literal* SuiteNode::eval() const {
 
 void SuiteNode::append(Node* n) {
   stmts.push_back(n);
+}
+
+const Literal* FuncNode::eval() const {
+  SuiteNode* node = dynamic_cast<SuiteNode*>(suite);
+  if (!node) {
+    throw std::string("Error: cannot cast to SuiteNode");
+  }
+  TableManager::getInstance().setNode(name, suite);
+  PoolOfNodes::getInstance().add(node);
+  return nullptr;
+}
+
+const Literal* CallNode::eval() const {
+  if (!ident) {
+    throw std::string("Error: ident is null");
+  }
+  std::string funcName = static_cast<IdentNode*>(ident)->getIdent();
+  // if no function named name, Tablemanager will throw exception
+  const Node* suite = TableManager::getInstance().getNode(funcName);
+  TableManager::getInstance().pushScope();
+  const Literal* res = suite->eval();
+  TableManager::getInstance().popScope();
+  if (!res) {
+    res = new NoneLiteral();
+  }
+  PoolOfNodes::getInstance().add(suite);
+  PoolOfNodes::getInstance().add(res);
+  return res;
+}
+
+const Literal* ReturnNode::eval() const {
+  const Literal* res;
+  if (!testlist) {
+    res = new NoneLiteral();
+  } else {
+    res = testlist->eval();
+  }
+  TableManager::getInstance().setReturnValue(res);
+  return res;
 }
 
 const Literal* UnaryNode::eval() const {
@@ -60,7 +102,7 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   BinaryNode(left, right) {
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
-  TableManager::getInstance().setEntry(n, res);
+  TableManager::getInstance().setValue(n, res);
 }
 const Literal* AsgBinaryNode::eval() const {
   if (left->isNull() || right->isNull()) {
@@ -68,7 +110,7 @@ const Literal* AsgBinaryNode::eval() const {
   }
   const Literal* res = right->eval();
   const std::string n = static_cast<IdentNode*>(left)->getIdent();
-  TableManager::getInstance().setEntry(n, res);
+  TableManager::getInstance().setValue(n, res);
   return res;
 }
 

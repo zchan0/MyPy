@@ -78,6 +78,41 @@ private:
   std::list<Node*> stmts;
 };
 
+class FuncNode : public Node {
+public:
+  FuncNode(char* n, Node* s) : Node(), name(n), suite(s) {}
+  virtual ~FuncNode() {}
+  virtual const Literal* eval() const;
+  FuncNode(const FuncNode&) = delete;
+  FuncNode& operator=(const FuncNode&) = delete;
+private:
+  std::string name;
+  Node* suite;
+};
+
+class CallNode : public Node {
+public:
+  CallNode(Node* n)  : Node(), ident(n) {}
+  virtual ~CallNode() {}
+  virtual const Literal* eval() const;
+  CallNode(const CallNode&) = delete;
+  CallNode& operator=(const CallNode&) = delete;
+private:
+  Node* ident;
+};
+
+class ReturnNode : public Node {
+public:
+  ReturnNode() : Node(), testlist(nullptr) {}
+  ReturnNode(Node* n) : Node(), testlist(n) {}
+  virtual ~ReturnNode() {}
+  virtual const Literal* eval() const;
+  ReturnNode(const ReturnNode&)  = delete;
+  ReturnNode& operator=(const ReturnNode&) = delete;
+private:
+  Node* testlist;
+};
+
 class UnaryNode : public Node {
 public:
   UnaryNode(char c, Node* n) : Node(), op(c), node(n) {}
