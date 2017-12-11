@@ -5,9 +5,20 @@ import fnmatch
 import subprocess
 import filecmp
 
+# https://stackoverflow.com/a/287944
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def testCode( retcode, msg ):
   if retcode > 0:
-    print msg
+    print bcolors.WARNING + msg + bcolors.ENDC
     sys.exit( 1 )
 
 testDir = os.path.join( os.getcwd(), 'cases')
@@ -32,18 +43,18 @@ for x in files:
     testcase = os.path.join(testDir, x)
     output = testcase[:-3]+".out"
     generateResult(testcase, output)
-    
+
     retcode = subprocess.call("./run < "+testcase+"> /tmp/out",shell=True)
     if retcode < 0:
       testCode( retcode, "\tFAILED to run test case "+x)
     else:
       if not os.path.isfile( output ):
-        print "test case", x[:-3]+'.out', "doesn't exist"
+        print bcolors.FAIL + "test case", x[:-3]+'.out', "doesn't exist" + bcolors.ENDC
         sys.exit( 1 )
       if not filecmp.cmp("/tmp/out", output):
-        subprocess.call("diff "+output+" /tmp/out -y",shell=True) 
-        print "\tTEST CASE FAILED", x
+        subprocess.call("diff "+output+" /tmp/out -y",shell=True)
+        print bcolors.FAIL + "\tTEST CASE FAILED", x + bcolors.ENDC
       else :
-        print "\x1b[6;30;42m" + "testcase:", x, "passed" + "\x1b[0m"
+        print bcolors.OKGREEN + "testcase:", x, "passed" + bcolors.ENDC
 
 
