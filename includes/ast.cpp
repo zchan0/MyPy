@@ -41,9 +41,14 @@ const Literal* SuiteNode::eval() const {
   }
 
   for (Node* stmt : stmts) {
-    stmt->eval();
-    if (TableManager::getInstance().needReturnValue()) {
-      return TableManager::getInstance().getReturnValue();
+    FuncNode* func = dynamic_cast<FuncNode*>(stmt);
+    if (func) continue;
+
+    ReturnNode* ret = dynamic_cast<ReturnNode*>(stmt);
+    if (ret) {
+      return ret->eval();
+    } else {
+      stmt->eval();
     }
   }
 
@@ -55,13 +60,14 @@ void SuiteNode::append(Node* n) {
 }
 
 const Literal* FuncNode::eval() const {
-  SuiteNode* node = dynamic_cast<SuiteNode*>(suite);
-  if (!node) {
+  SuiteNode* suiteNode = dynamic_cast<SuiteNode*>(suite);
+  if (!suiteNode) {
     throw std::string("Error: cannot cast to SuiteNode");
   }
-  TableManager::getInstance().setNode(name, suite);
-  PoolOfNodes::getInstance().add(node);
-  return nullptr;
+  const Literal* res = suiteNode->eval();
+  // no return statement
+  if (!res) res = new NoneLiteral();
+  return res;
 }
 
 const Literal* CallNode::eval() const {
@@ -70,27 +76,19 @@ const Literal* CallNode::eval() const {
   }
   std::string funcName = static_cast<IdentNode*>(ident)->getIdent();
   // if no function named name, Tablemanager will throw exception
-  const Node* suite = TableManager::getInstance().getNode(funcName);
+  const Node* func = TableManager::getInstance().getNode(funcName);
   TableManager::getInstance().pushScope();
-  const Literal* res = suite->eval();
+  const Literal* res = func->eval();
   TableManager::getInstance().popScope();
-  if (!res) {
-    res = new NoneLiteral();
-  }
-  PoolOfNodes::getInstance().add(suite);
-  PoolOfNodes::getInstance().add(res);
   return res;
 }
 
 const Literal* ReturnNode::eval() const {
-  const Literal* res;
   if (!testlist) {
-    res = new NoneLiteral();
+    return new NoneLiteral();
   } else {
-    res = testlist->eval();
+    return testlist->eval();
   }
-  TableManager::getInstance().setReturnValue(res);
-  return res;
 }
 
 const Literal* UnaryNode::eval() const {

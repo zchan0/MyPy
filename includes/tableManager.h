@@ -10,19 +10,13 @@ public:
 
     void pushScope();
     void popScope();
-    const SymbolTable* localScope();
+    const SymbolTable* currentTable();
+    int getCurrentScope() const;
 
     const Node* getNode(const std::string&);
     const Literal* getValue(const std::string&);
     void setNode(const std::string&, const Node*);
     void setValue(const std::string&, const Literal*);
-
-    // convinent function for ReturnNode, within current scope
-    const Literal* getReturnValue();
-    void setReturnValue(const Literal*);
-    // timing: after evaluating a ReturnNode
-    bool needReturnValue() const;
-
     void print() const;
 
     TableManager(const TableManager&) = delete;

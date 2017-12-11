@@ -24,12 +24,12 @@ void TableManager::popScope() {
     --currentScope;
 }
 
-bool TableManager::needReturnValue() const {
-    return tables[currentScope]->findSymbol("__RETURN__");
+const SymbolTable* TableManager::currentTable() {
+    return tables[currentScope];
 }
 
-const SymbolTable* TableManager::localScope() {
-    return tables[currentScope];
+int TableManager::getCurrentScope() const {
+    return currentScope;
 }
 
 const Node* TableManager::getNode(const std::string& name) {
@@ -66,14 +66,6 @@ void TableManager::setNode(const std::string& name, const Node* node) {
 
 void TableManager::setValue(const std::string& name, const Literal* val) {
     tables[currentScope]->setValue(name, val);
-}
-
-const Literal* TableManager::getReturnValue() {
-    return tables[currentScope]->getValue("__RETURN__");
-}
-
-void TableManager::setReturnValue(const Literal* val) {
-    tables[currentScope]->setValue("__RETURN__", val);
 }
 
 void TableManager::print() const {

@@ -62,9 +62,12 @@ file_input // Used in: start
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE { $$ = nNull; }
 	| stmt {
-		if ($1) {
+		// skip func definition
+		// func should be evaluate only in CallNode
+		FuncNode* func = dynamic_cast<FuncNode*>($1);
+		if (!func) {
 			$1->eval();
-			TableManager::getInstance().print();
+			// TableManager::getInstance().print();
 		}
 	}
 	;
@@ -95,7 +98,8 @@ funcdef // Used in: decorated, compound_stmt
 		} else {
 			$$ = new FuncNode($2, $5);
 			pool.add($$);
-			delete[] $2;
+			TableManager::getInstance().setNode($2, $$);
+			delete $2;
 		}
 	}
 	;
@@ -595,7 +599,7 @@ power // Used in: factor
 		pool.add($$);
 	}
 	| atom star_trailer {	// star_trailer: zero or more (), [], .xxx
-		if (!$2) {
+		if ($1 && !$2) {
 			$$ = $1;
 		} else {
 			// NAME reduce to atom
