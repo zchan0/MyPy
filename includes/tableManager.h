@@ -13,12 +13,15 @@ public:
 
     const Node* getFunc(const std::string&);
     const Literal* getValue(const std::string&);
+    Node* getParams(const std::string& name);
     void setFunc(const std::string&, const Node*);
     void setValue(const std::string&, const Literal*);
+    void setParams(const std::string& name, Node*);
     void print() const;
 
-    bool findValue(const std::string&);
-    bool findFunc(const std::string&);
+    bool findValue(const std::string&) const;
+    bool findFunc(const std::string&) const ;
+    bool findParams(const std::string&) const;
 
     bool needReturnValue() const;
     const Literal* getReturnValue();

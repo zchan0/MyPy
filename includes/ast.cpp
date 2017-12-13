@@ -85,15 +85,60 @@ void SuiteNode::append(Node* n) {
 
 const Literal* FuncNode::eval() const {
   TableManager::getInstance().setFunc(name, suite);
+  if (params) {
+    TableManager::getInstance().setParams(name, params);
+  }
   return nullptr;
+}
+
+void ParamNode::append(Node* param) {
+  params.push_back(param);
+}
+const std::vector<Node*> ParamNode::getParams() {
+  return params;
+}
+const Literal* ParamNode::eval() const {
+  return nullptr;
+}
+// for debug
+void ParamNode::print() const {
+  std::cout << params.size() << " params: " << std::endl;
+  for (const Node* n : params) {
+    n->eval()->print();
+  }
 }
 
 const Literal* CallNode::eval() const {
   TableManager& tm = TableManager::getInstance();
-  const Node* func = tm.getFunc(funcName);
   const Literal* res = new NoneLiteral();
+  const Node* func = tm.getFunc(funcName);
 
-  tm.pushScope();
+  // if function has parameters, handle parameters firstly.
+  if (tm.findParams(funcName)) {
+    Node* paramsNode = tm.getParams(funcName);
+    const std::vector<Node*> params = static_cast<ParamNode*>(paramsNode)->getParams();
+    const std::vector<Node*> args = static_cast<ParamNode*>(arguments)->getParams();
+    // check whether arguments is valid
+    // TODO: support *args, **kwwargs
+    if (params.size() != args.size()) {
+      throw std::string("TypeError:") + funcName + std::string("() takes exactly ")
+          + std::to_string(params.size()) + std::string(" arguments") + std::string("(") + std::to_string(args.size()) + std::string(" given)");
+    }
+
+    tm.pushScope();
+    // evaluate args
+    for (unsigned long i = 0; i < args.size(); ++i) {
+      const std::string param = static_cast<IdentNode*>(params[i])->getIdent();
+      const Literal* val = args[i]->eval();
+      tm.setValue(param, val);
+    }
+  }
+
+  // already push scope above
+  if (!tm.findParams(funcName)) {
+    tm.pushScope();
+  }
+
   func->eval();
   if (tm.needReturnValue()) {
     res =tm.getReturnValue();

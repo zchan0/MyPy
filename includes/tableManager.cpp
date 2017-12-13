@@ -52,6 +52,17 @@ const Literal* TableManager::getValue(const std::string& name) {
     return nullptr;
 }
 
+Node* TableManager::getParams(const std::string& name) {
+    std::vector<SymbolTable*>::reverse_iterator rit = tables.rbegin();
+    while (rit != tables.rend()) {
+        if ((*rit)->findParams(name))
+            return (*rit)->getParams(name);
+        ++rit;
+    }
+    throw std::string("NameError: params for ") + name + std::string(" is not defined");
+    return nullptr;
+}
+
 void TableManager::setFunc(const std::string& name, const Node* node) {
     tables[currentScope]->setFunc(name, node);
 }
@@ -60,12 +71,20 @@ void TableManager::setValue(const std::string& name, const Literal* val) {
     tables[currentScope]->setValue(name, val);
 }
 
-bool TableManager::findValue(const std::string& name) {
+void TableManager::setParams(const std::string& name, Node* node) {
+    tables[currentScope]->setParams(name, node);
+}
+
+bool TableManager::findValue(const std::string& name) const {
     return tables[currentScope]->findValue(name);
 }
 
-bool TableManager::findFunc(const std::string& name) {
+bool TableManager::findFunc(const std::string& name) const {
     return tables[currentScope]->findFunc(name);
+}
+
+bool TableManager::findParams(const std::string& name) const {
+    return tables[currentScope]->findParams(name);
 }
 
 bool TableManager::needReturnValue() const {

@@ -16,15 +16,27 @@ void SymbolTable::setValue(const std::string& name, const Literal* val) {
 }
 
 const Node* SymbolTable::getFunc(const std::string& name) const {
-  std::map<std::string, const Node*>::const_iterator it = nodes.find(name);
-  if (it == nodes.end()) {
+  std::map<std::string, const Node*>::const_iterator it = functions.find(name);
+  if (it == functions.end()) {
     return nullptr;
   }
   return it->second;
 }
 
 void SymbolTable::setFunc(const std::string& name, const Node* node) {
-  nodes[name] = node;
+  functions[name] = node;
+}
+
+Node* SymbolTable::getParams(const std::string& name) const {
+  std::map<std::string, Node*>::const_iterator it = params.find(name);
+  if (it == params.end()) {
+    return nullptr;
+  }
+  return it->second;
+}
+
+void SymbolTable::setParams(const std::string& name, Node* node) {
+  params[name] = node;
 }
 
 bool SymbolTable::findValue(const std::string& name) const {
@@ -32,7 +44,11 @@ bool SymbolTable::findValue(const std::string& name) const {
 }
 
 bool SymbolTable::findFunc(const std::string& name) const {
-  return nodes.find(name) != nodes.end();
+  return functions.find(name) != functions.end();
+}
+
+bool SymbolTable::findParams(const std::string& name) const {
+  return params.find(name) != params.end();
 }
 
 void SymbolTable::print() const {
@@ -43,11 +59,17 @@ void SymbolTable::print() const {
     it->second->eval()->print();
     ++it;
   }
-  std::cout << "nodes: ";
-  std::map<std::string, const Node*>::const_iterator itr = nodes.cbegin();
-  while (itr != nodes.cend()) {
+  std::cout << "functions: ";
+  std::map<std::string, const Node*>::const_iterator itr = functions.cbegin();
+  while (itr != functions.cend()) {
     std::cout << itr->first << " ";
     ++itr;
+  }
+  std::cout << std::endl << "params for : ";
+  std::map<std::string, Node*>::const_iterator pit = params.cbegin();
+  while (pit != params.cend()) {
+    std::cout << pit->first << " ";
+    ++pit;
   }
   std::cout << std::endl << std::endl;
 }

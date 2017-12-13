@@ -82,25 +82,40 @@ private:
 
 class FuncNode : public Node {
 public:
-  FuncNode(char* n, Node* s) : Node(), name(n), suite(s) {}
+  FuncNode(char* n, Node* p, Node* s) : Node(), name(n), suite(s), params(p) {}
   virtual ~FuncNode() {}
   virtual const Literal* eval() const;
   FuncNode(const FuncNode&) = delete;
   FuncNode& operator=(const FuncNode&) = delete;
 private:
   std::string name;
-  Node* suite;
+  Node* suite, *params;
+};
+
+class ParamNode : public Node {
+public:
+  ParamNode() : Node(), params() {}
+  virtual ~ParamNode() {}
+  virtual const Literal* eval() const;
+  void append(Node*);
+  void print() const;
+  const std::vector<Node*> getParams();
+  ParamNode(const ParamNode&) = delete;
+  ParamNode& operator=(const ParamNode&) = delete;
+private:
+  std::vector<Node*> params;
 };
 
 class CallNode : public Node {
 public:
-  CallNode(const std::string& n)  : Node(), funcName(n) { }
+  CallNode(const std::string& n, Node* a)  : Node(), funcName(n), arguments(a) { }
   virtual ~CallNode() {}
   virtual const Literal* eval() const;
   CallNode(const CallNode&) = delete;
   CallNode& operator=(const CallNode&) = delete;
 private:
   std::string funcName;
+  Node* arguments;
 };
 
 class ReturnNode : public Node {

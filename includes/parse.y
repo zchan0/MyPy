@@ -29,6 +29,8 @@ bool isOpEqual(const char*, const char*);
 %type<node> expr_stmt testlist star_EQUAL star_trailer trailer pick_yield_expr_testlist
 %type<node> pick_NEWLINE_stmt stmt simple_stmt suite plus_stmt compound_stmt small_stmt
 %type<node> if_stmt funcdef return_stmt flow_stmt
+%type<node> parameters varargslist star_fpdef_COMMA fpdef opt_EQUAL_test fplist star_fpdef_notest
+%type<node> opt_arglist arglist pick_argument argument star_argument_COMMA
 
 %token<intNumber> INT
 %token<fltNumber> FLOAT
@@ -75,8 +77,8 @@ decorator // Used in: decorators
 	| AT dotted_name NEWLINE
 	;
 opt_arglist // Used in: decorator, trailer
-	: arglist
-	| %empty
+	: arglist { $$ = $1; }
+	| %empty { $$ = nullptr; }
 	;
 decorators // Used in: decorators, decorated
 	: decorators decorator
@@ -91,27 +93,53 @@ funcdef // Used in: decorated, compound_stmt
 		if ($5 == nullptr) {
 			$$ = nullptr;
 		} else {
-			$$ = new FuncNode($2, $5);
+			$$ = new FuncNode($2, $3, $5);
 			pool.add($$);
-			delete $2;
 		}
 	}
 	;
 parameters // Used in: funcdef
-	: LPAR varargslist RPAR
-	| LPAR RPAR
+	: LPAR varargslist RPAR { $$ = $2; }
+	| LPAR RPAR { $$ = nullptr; }
 	;
 varargslist // Used in: parameters, old_lambdef, lambdef
-	: star_fpdef_COMMA pick_STAR_DOUBLESTAR
-	| star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA
+	: star_fpdef_COMMA pick_STAR_DOUBLESTAR {
+		// TODO: *args, **kwargs
+		$$ = $1;
+	}
+	| star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA {
+		// TODO: $4 -> (foo = xxx) -> default value
+		if ($1) {
+			reinterpret_cast<ParamNode*>($1)->append($2);
+			$$ = $1;
+		} else {
+			// only one positional parameter
+			$$ = new ParamNode();
+			reinterpret_cast<ParamNode*>($$)->append($2);
+			pool.add($$);
+		}
+	}
 	;
 opt_EQUAL_test // Used in: varargslist, star_fpdef_COMMA
-	: EQUAL test
-	| %empty
+	: EQUAL test { $$ = $2; }
+	| %empty { $$ = nullptr; }
 	;
 star_fpdef_COMMA // Used in: varargslist, star_fpdef_COMMA
-	: star_fpdef_COMMA fpdef opt_EQUAL_test COMMA
-	| %empty
+	: star_fpdef_COMMA fpdef opt_EQUAL_test COMMA {
+		if ($3) {
+			$2 = new AsgBinaryNode($2, $3);
+			pool.add($2);
+		}
+		if ($1) {
+			reinterpret_cast<ParamNode*>($1)->append($2);
+			$$ = $1;
+		} else {
+			$$ = new ParamNode();
+			pool.add($$);
+			reinterpret_cast<ParamNode*>($$)->append($2);
+		}
+	}
+	| %empty { $$ = nullptr; }
 	;
 opt_DOUBLESTAR_NAME // Used in: pick_STAR_DOUBLESTAR
 	: COMMA DOUBLESTAR NAME
@@ -126,16 +154,47 @@ opt_COMMA // Used in: varargslist, opt_test, opt_test_2, testlist_safe, listmake
 	| %empty
 	;
 fpdef // Used in: varargslist, star_fpdef_COMMA, fplist, star_fpdef_notest
-	: NAME
-	| LPAR fplist RPAR
+	: NAME {
+		$$ = new IdentNode($1);
+		delete[] $1;
+		pool.add($$);
+	}
+	| LPAR fplist RPAR { $$ = $2; }
 	;
 fplist // Used in: fpdef
-	: fpdef star_fpdef_notest COMMA
-	| fpdef star_fpdef_notest
+	: fpdef star_fpdef_notest COMMA {
+		if ($2) {
+			reinterpret_cast<ParamNode*>($2)->append($1);
+			$$ = $2;
+		} else {
+			$$ = new ParamNode();
+			pool.add($$);
+			reinterpret_cast<ParamNode*>($$)->append($1);
+		}
+	}
+	| fpdef star_fpdef_notest {
+		if ($2) {
+			reinterpret_cast<ParamNode*>($2)->append($1);
+			$$ = $2;
+		} else {
+			$$ = new ParamNode();
+			pool.add($$);
+			reinterpret_cast<ParamNode*>($$)->append($1);
+		}
+	}
 	;
 star_fpdef_notest // Used in: fplist, star_fpdef_notest
-	: star_fpdef_notest COMMA fpdef
-	| %empty
+	: star_fpdef_notest COMMA fpdef {
+		if ($1) {
+			reinterpret_cast<ParamNode*>($1)->append($3);
+			$$ = $1;
+		} else {
+			$$ = new ParamNode();
+			pool.add($$);
+			reinterpret_cast<ParamNode*>($$)->append($3);
+		}
+	}
+	| %empty { $$ = nullptr; }
 	;
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
@@ -593,19 +652,27 @@ power // Used in: factor
 		pool.add($$);
 	}
 	| atom star_trailer {	// star_trailer: zero or more (), [], .xxx
-		if ($1 && ($<intNumber>2 == 1)) {
+		// if ($1 && ($<intNumber>2 == 1)) {
+		if ($1 && !$2) {
 			$$ = $1;
 		} else {
 			// reinterpret_cast cheaper than dynamic_cast
 			std::string name = reinterpret_cast<IdentNode*>($1)->getIdent();
-			$$ = new CallNode(name);
+			$$ = new CallNode(name, $2);
 			pool.add($$);
 		}
 	}
 	;
 star_trailer // Used in: power, star_trailer
-	: star_trailer trailer { $<intNumber>$ = 0; }
-	| %empty { $<intNumber>$ = 1; }
+	: star_trailer trailer {
+		// $<intNumber>$ = 0;
+		// TODO: ONE trailer
+		$$ = $2;
+	}
+	| %empty {
+		// $<intNumber>$ = 1;
+		$$ = nullptr;
+	}
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR { $$ = nullptr; }
@@ -656,16 +723,21 @@ testlist_comp // Used in: pick_yield_expr_testlist_comp
 	: test comp_for
 	| test star_COMMA_test opt_COMMA
 	;
-lambdef // Used in: test
+lambdef // anonymous functions (functions not bound to a name), Used in: test
 	: LAMBDA varargslist COLON test
 	| LAMBDA COLON test
 	;
 trailer // Used in: star_trailer
-	: LPAR opt_arglist RPAR { $$ = nullptr; }
-	| LSQB subscriptlist RSQB { $$ = nullptr; }
-	| DOT NAME {
-		delete[] $2;
+	: LPAR opt_arglist RPAR {
+		if ($2) {
+			$$ = $2;
+		} else {
+			$$ = new ParamNode();
+			pool.add($$);
+		}
 	}
+	| LSQB subscriptlist RSQB { $$ = nullptr; }
+	| DOT NAME { delete[] $2; }
 	;
 subscriptlist // Used in: trailer
 	: subscript star_COMMA_subscript COMMA
@@ -729,11 +801,35 @@ opt_testlist // Used in: classdef
 	| %empty
 	;
 arglist // Used in: opt_arglist
-	: star_argument_COMMA pick_argument
+	: star_argument_COMMA pick_argument {
+		if ($1) {
+			// ParamNode already created
+			if ($2) {
+				// another argument
+				reinterpret_cast<ParamNode*>($1)->append($2);
+			} else {
+				$$ = $1;
+			}
+		} else {
+			// no ParamNode
+			$$ = new ParamNode();
+			reinterpret_cast<ParamNode*>($$)->append($1);
+			pool.add($$);
+		}
+	}
 	;
 star_argument_COMMA // Used in: arglist, star_argument_COMMA
-	: star_argument_COMMA argument COMMA
-	| %empty
+	: star_argument_COMMA argument COMMA {
+		if ($1) {
+			reinterpret_cast<ParamNode*>($1)->append($2);
+			$$ = $1;
+		} else {
+			$$ = new ParamNode();
+			reinterpret_cast<ParamNode*>($$)->append($2);
+			pool.add($$);
+		}
+	}
+	| %empty { $$ = nullptr; }
 	;
 star_COMMA_argument // Used in: star_COMMA_argument, pick_argument
 	: star_COMMA_argument COMMA argument
@@ -744,13 +840,22 @@ opt_DOUBLESTAR_test // Used in: pick_argument
 	| %empty
 	;
 pick_argument // Used in: arglist
-	: argument opt_COMMA
-	| STAR test star_COMMA_argument opt_DOUBLESTAR_test
-	| DOUBLESTAR test
+	: argument opt_COMMA { $$ = $1; }
+	| STAR test star_COMMA_argument opt_DOUBLESTAR_test {
+		// TODO: *args
+		$$ = nullptr;
+	}
+	| DOUBLESTAR test {
+		// TODO: **kwargs
+		$$ = nullptr;
+	}
 	;
 argument // Used in: star_argument_COMMA, star_COMMA_argument, pick_argument
-	: test opt_comp_for
-	| test EQUAL test
+	: test opt_comp_for { $$ = $1; }
+	| test EQUAL test {
+		$$ = new AsgBinaryNode($1, $3);
+		pool.add($$);
+	}
 	;
 opt_comp_for // Used in: argument
 	: comp_for
