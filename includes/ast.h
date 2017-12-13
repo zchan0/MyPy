@@ -92,14 +92,13 @@ private:
 
 class CallNode : public Node {
 public:
-  CallNode(Node* n)  : Node(), ident(n) {}
+  CallNode(const std::string& n)  : Node(), funcName(n) {}
   virtual ~CallNode() {}
   virtual const Literal* eval() const;
-  const std::string getIdent() const;
   CallNode(const CallNode&) = delete;
   CallNode& operator=(const CallNode&) = delete;
 private:
-  Node* ident;
+  std::string funcName;
 };
 
 class ReturnNode : public Node {

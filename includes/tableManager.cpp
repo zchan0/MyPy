@@ -58,6 +58,14 @@ void TableManager::setValue(const std::string& name, const Literal* val) {
     tables[currentScope]->setValue(name, val);
 }
 
+bool TableManager::findValue(const std::string& name) {
+    return tables[currentScope]->findValue(name);
+}
+
+bool TableManager::findFunc(const std::string& name) {
+    return tables[currentScope]->findFunc(name);
+}
+
 bool TableManager::needReturnValue() const {
     return tables[currentScope]->findValue("__RETURN__");
 }

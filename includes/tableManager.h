@@ -17,6 +17,9 @@ public:
     void setValue(const std::string&, const Literal*);
     void print() const;
 
+    bool findValue(const std::string&);
+    bool findFunc(const std::string&);
+
     bool needReturnValue() const;
     const Literal* getReturnValue();
     void setReturnValue(const Literal*);

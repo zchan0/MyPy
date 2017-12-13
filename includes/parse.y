@@ -598,8 +598,9 @@ power // Used in: factor
 		if ($1 && !$2) {
 			$$ = $1;
 		} else {
-			// NAME reduce to atom
-			$$ = new CallNode($1);
+			// reinterpret_cast cheaper than dynamic_cast
+			std::string name = reinterpret_cast<IdentNode*>($1)->getIdent();
+			$$ = new CallNode(name);
 			pool.add($$);
 		}
 	}

@@ -18,16 +18,7 @@ const Literal* PrintNode::eval() const {
     std::cout << std::endl;
   }
 
-  // Print CallNode
-  const CallNode* call = dynamic_cast<CallNode*>(node);
-  const Literal* res;
-  if (call) {
-    res = TableManager::getInstance().getValue(call->getIdent());
-    res->print();
-    return nullptr;
-  }
-
-  res = node->eval();
+  const Literal* res = node->eval();
   if (!res) {
     throw std::string("print node eval is null");
   }
@@ -76,13 +67,13 @@ const Literal* FuncNode::eval() const {
 }
 
 const Literal* CallNode::eval() const {
-  if (!ident) {
-    throw std::string("Error: ident is null");
+  TableManager& tm = TableManager::getInstance();
+
+  if (tm.findValue(funcName)) {
+    return tm.getValue(funcName);
   }
 
-  TableManager& tm = TableManager::getInstance();
   const Literal* res = new NoneLiteral();
-  std::string funcName = getIdent();
   const Node* func = tm.getFunc(funcName);
 
   tm.pushScope();
@@ -94,9 +85,6 @@ const Literal* CallNode::eval() const {
   tm.setValue(funcName, res);
 
   return res;
-}
-const std::string CallNode::getIdent() const {
-  return static_cast<IdentNode*>(ident)->getIdent();
 }
 
 const Literal* ReturnNode::eval() const {
