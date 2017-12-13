@@ -92,7 +92,7 @@ private:
 
 class CallNode : public Node {
 public:
-  CallNode(const std::string& n)  : Node(), funcName(n) {}
+  CallNode(const std::string& n)  : Node(), funcName(n) { }
   virtual ~CallNode() {}
   virtual const Literal* eval() const;
   CallNode(const CallNode&) = delete;
@@ -141,7 +141,7 @@ protected:
 
 class AsgBinaryNode : public BinaryNode {
 public:
-  AsgBinaryNode(Node* left, Node* right);
+  AsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
 };
 
