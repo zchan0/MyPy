@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include "literal.h"
+#include "tableManager.h"
 
 extern void yyerror(const char*);
 extern void yyerror(const char*, const char);

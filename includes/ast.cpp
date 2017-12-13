@@ -5,7 +5,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include "ast.h"
-#include "tableManager.h"
 
 const Literal* IdentNode::eval() const {
   const Literal* val = TableManager::getInstance().getValue(ident);
@@ -56,7 +55,6 @@ const Literal* SuiteNode::eval() const {
 
   return nullptr;
 }
-
 void SuiteNode::append(Node* n) {
   stmts.push_back(n);
 }

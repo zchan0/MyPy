@@ -12,7 +12,9 @@ TableManager::~TableManager() {
 }
 
 void TableManager::pushScope() {
-    if (tables.size() >= stackLimit) return;
+    if (tables.size() >= stackLimit) {
+        throw std::string("RuntimeError: maximum recursion depth exceeded");
+    }
     SymbolTable* table = new SymbolTable();
     tables.push_back(table);
     ++currentScope;
