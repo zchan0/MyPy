@@ -8,6 +8,9 @@
 
 const Literal* IdentNode::eval() const {
   const Literal* val = TableManager::getInstance().getValue(ident);
+  if (!val) {
+    throw std::string("UnboundLocalError: local variable ") + ident + std::string(" referenced before assignment");
+  }
   return val;
 }
 
@@ -41,10 +44,31 @@ const Literal* IfNode::eval() const {
   }
 }
 
+// precook for eval
+// rule:
+//    if there are AsgBinaryNodes, mark identifier(lval) as nullptr.
+//    for TableManager, it can find a ident for current scope, while its value is nullptr
+//    handle nullptr in IdentNode->eval()
+void SuiteNode::preeval() const {
+    if (stmts.empty()) return;
+
+    for (Node* stmt : stmts) {
+      if (!stmt) continue;
+
+      const AsgBinaryNode* asg = dynamic_cast<AsgBinaryNode*>(stmt);
+      if (asg) {
+        std::string ident = asg->getIdent();
+        TableManager::getInstance().setValue(ident, nullptr);
+      }
+    }
+}
 const Literal* SuiteNode::eval() const {
   if (stmts.empty()) {
     return nullptr;
   }
+
+  // call preeval here to make sure the scope is correct
+  preeval();
 
   for (Node* stmt : stmts) {
     if (!stmt) continue;
@@ -101,9 +125,12 @@ const Literal* AsgBinaryNode::eval() const {
     throw std::string("Error: left or right of BinaryNode is null");
   }
   const Literal* res = right->eval();
-  const std::string n = static_cast<IdentNode*>(left)->getIdent();
+  const std::string n = getIdent();
   TableManager::getInstance().setValue(n, res);
   return res;
+}
+const std::string AsgBinaryNode::getIdent() const {
+  return static_cast<IdentNode*>(left)->getIdent();
 }
 
 const Literal* AddBinaryNode::eval() const {

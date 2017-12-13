@@ -72,6 +72,7 @@ public:
   SuiteNode() : Node(), stmts() {}
   virtual ~SuiteNode() {}
   virtual const Literal* eval() const;
+  void preeval() const;
   void append(Node*);
   SuiteNode(const SuiteNode&) = delete;
   SuiteNode& operator=(const SuiteNode&) = delete;
@@ -144,6 +145,7 @@ class AsgBinaryNode : public BinaryNode {
 public:
   AsgBinaryNode(Node* left, Node* right) : BinaryNode(left, right) { }
   virtual const Literal* eval() const;
+  const std::string getIdent() const;
 };
 
 class AddBinaryNode : public BinaryNode {
