@@ -27,7 +27,7 @@ void SymbolTable::setFunc(const std::string& name, const Node* node) {
   nodes[name] = node;
 }
 
-bool SymbolTable::findSymbol(const std::string& name) const {
+bool SymbolTable::findValue(const std::string& name) const {
   return symbols.find(name) != symbols.end();
 }
 

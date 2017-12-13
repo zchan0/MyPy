@@ -19,7 +19,7 @@ public:
   void setFunc(const std::string& name, const Node* node);
   void setValue(const std::string& name, const Literal* val);
   bool findFunc(const std::string&) const;
-  bool findSymbol(const std::string&) const;
+  bool findValue(const std::string&) const;
 
   void print() const;
   SymbolTable(const SymbolTable&) = delete;

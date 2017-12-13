@@ -24,40 +24,30 @@ void TableManager::popScope() {
     --currentScope;
 }
 
-const SymbolTable* TableManager::currentTable() {
-    return tables[currentScope];
-}
-
 int TableManager::getCurrentScope() const {
     return currentScope;
 }
 
 const Node* TableManager::getFunc(const std::string& name) {
-    const Node* res = tables[currentScope]->getFunc(name);
-    if (!res) {
-        int lookupScope = currentScope - 1;
-        while (lookupScope >= 0) {
-            res = tables[lookupScope]->getFunc(name);
-            if (res) return res;
-            --lookupScope;
-        }
-        throw std::string("NameError: name ") + name + std::string(" is not defined");
+    std::vector<SymbolTable*>::reverse_iterator rit = tables.rbegin();
+    while (rit != tables.rend()) {
+        if ((*rit)->findFunc(name))
+            return (*rit)->getFunc(name);
+        ++rit;
     }
-    return res;
+    throw std::string("NameError: function ") + name + std::string(" is not defined");
+    return nullptr;
 }
 
 const Literal* TableManager::getValue(const std::string& name) {
-    const Literal* res = tables[currentScope]->getValue(name);
-    if (!res) {
-        int lookupScope = currentScope - 1;
-        while (lookupScope >= 0) {
-            res = tables[lookupScope]->getValue(name);
-            if (res) return res;
-            --lookupScope;
-        }
-        throw std::string("NameError: name ") + name + std::string(" is not defined");
+    std::vector<SymbolTable*>::reverse_iterator rit = tables.rbegin();
+    while (rit != tables.rend()) {
+        if ((*rit)->findValue(name))
+            return (*rit)->getValue(name);
+        ++rit;
     }
-    return res;
+    throw std::string("NameError: symbol ") + name + std::string(" is not defined");
+    return nullptr;
 }
 
 void TableManager::setFunc(const std::string& name, const Node* node) {

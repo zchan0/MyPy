@@ -1,4 +1,3 @@
-#include <stack>
 #include <string>
 #include <vector>
 #include "symbolTable.h"
@@ -10,7 +9,6 @@ public:
 
     void pushScope();
     void popScope();
-    const SymbolTable* currentTable();
     int getCurrentScope() const;
 
     const Node* getFunc(const std::string&);
@@ -35,6 +33,6 @@ private:
     // prevents infinite recursion from causing an overflow of the C stack
     // according to some sources, the default recursion limit is set to 1000
     // https://stackoverflow.com/a/3323013
-    const size_t stackLimit;
+    const unsigned long stackLimit;
     int currentScope;
 };
