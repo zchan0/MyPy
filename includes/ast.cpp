@@ -68,13 +68,8 @@ const Literal* FuncNode::eval() const {
 
 const Literal* CallNode::eval() const {
   TableManager& tm = TableManager::getInstance();
-
-  if (tm.findValue(funcName)) {
-    return tm.getValue(funcName);
-  }
-
-  const Literal* res = new NoneLiteral();
   const Node* func = tm.getFunc(funcName);
+  const Literal* res = new NoneLiteral();
 
   tm.pushScope();
   func->eval();

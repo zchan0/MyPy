@@ -65,7 +65,6 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	}
 	| stmt {
 		if ($1) $1->eval();
-		// TableManager::getInstance().print();
 	}
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
