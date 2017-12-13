@@ -65,13 +65,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 		pool.add($$);
 	}
 	| stmt {
-		// skip func definition
-		// func should be evaluate only in CallNode
-		FuncNode* func = dynamic_cast<FuncNode*>($1);
-		if (!func) {
-			$1->eval();
-			// TableManager::getInstance().print();
-		}
+		if ($1) $1->eval();
 	}
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
@@ -101,7 +95,6 @@ funcdef // Used in: decorated, compound_stmt
 		} else {
 			$$ = new FuncNode($2, $5);
 			pool.add($$);
-			TableManager::getInstance().setFunc($2, $$);
 			delete $2;
 		}
 	}

@@ -17,7 +17,17 @@ const Literal* PrintNode::eval() const {
   if (node->isNull()) {
     std::cout << std::endl;
   }
-  const Literal* res = node->eval();
+
+  // Print CallNode
+  const CallNode* call = dynamic_cast<CallNode*>(node);
+  const Literal* res;
+  if (call) {
+    res = TableManager::getInstance().getValue(call->getIdent());
+    res->print();
+    return nullptr;
+  }
+
+  res = node->eval();
   if (!res) {
     throw std::string("print node eval is null");
   }
@@ -47,15 +57,10 @@ const Literal* SuiteNode::eval() const {
   }
 
   for (Node* stmt : stmts) {
-    FuncNode* func = dynamic_cast<FuncNode*>(stmt);
-    if (func) continue;
-
-    ReturnNode* ret = dynamic_cast<ReturnNode*>(stmt);
-    if (ret) {
-      return ret->eval();
-    } else {
-      stmt->eval();
-    }
+    if (!stmt) continue;
+    stmt->eval();
+    if (TableManager::getInstance().needReturnValue())
+      break;
   }
 
   return nullptr;
@@ -66,35 +71,43 @@ void SuiteNode::append(Node* n) {
 }
 
 const Literal* FuncNode::eval() const {
-  SuiteNode* suiteNode = dynamic_cast<SuiteNode*>(suite);
-  if (!suiteNode) {
-    throw std::string("Error: cannot cast to SuiteNode");
-  }
-  const Literal* res = suiteNode->eval();
-  // no return statement
-  if (!res) res = new NoneLiteral();
-  return res;
+  TableManager::getInstance().setFunc(name, suite);
+  return nullptr;
 }
 
 const Literal* CallNode::eval() const {
   if (!ident) {
     throw std::string("Error: ident is null");
   }
-  std::string funcName = static_cast<IdentNode*>(ident)->getIdent();
-  // if no function named name, Tablemanager will throw exception
-  const Node* func = TableManager::getInstance().getFunc(funcName);
-  TableManager::getInstance().pushScope();
-  const Literal* res = func->eval();
-  TableManager::getInstance().popScope();
+
+  TableManager& tm = TableManager::getInstance();
+  const Literal* res = new NoneLiteral();
+  std::string funcName = getIdent();
+  const Node* func = tm.getFunc(funcName);
+
+  tm.pushScope();
+  func->eval();
+  if (tm.needReturnValue()) {
+    res =tm.getReturnValue();
+  }
+  tm.popScope();
+  tm.setValue(funcName, res);
+
   return res;
+}
+const std::string CallNode::getIdent() const {
+  return static_cast<IdentNode*>(ident)->getIdent();
 }
 
 const Literal* ReturnNode::eval() const {
+  const Literal* res;
   if (!testlist) {
-    return new NoneLiteral();
+    res = new NoneLiteral();
   } else {
-    return testlist->eval();
+    res = testlist->eval();
   }
+  TableManager::getInstance().setReturnValue(res);
+  return nullptr;
 }
 
 const Literal* UnaryNode::eval() const {

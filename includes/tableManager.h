@@ -17,6 +17,10 @@ public:
     void setValue(const std::string&, const Literal*);
     void print() const;
 
+    bool needReturnValue() const;
+    const Literal* getReturnValue();
+    void setReturnValue(const Literal*);
+
     TableManager(const TableManager&) = delete;
     TableManager& operator=(const TableManager&) = delete;
 

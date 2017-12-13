@@ -58,7 +58,22 @@ void TableManager::setValue(const std::string& name, const Literal* val) {
     tables[currentScope]->setValue(name, val);
 }
 
+bool TableManager::needReturnValue() const {
+    return tables[currentScope]->findValue("__RETURN__");
+}
+
+const Literal* TableManager::getReturnValue() {
+    return tables[currentScope]->getValue("__RETURN__");
+}
+
+void TableManager::setReturnValue(const Literal* val) {
+    tables[currentScope]->setValue("__RETURN__", val);
+}
+
 void TableManager::print() const {
     std::cout << "current scope: " << currentScope << std::endl;
-    tables[currentScope]->print();
+    for (int i = tables.size() - 1; i >= 0; --i) {
+        std::cout << "scope " << i << std::endl;
+        tables[i]->print();
+    }
 }

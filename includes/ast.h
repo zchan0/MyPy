@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include <list>
+#include <vector>
 #include "literal.h"
 
 extern void yyerror(const char*);
@@ -75,7 +75,7 @@ public:
   SuiteNode(const SuiteNode&) = delete;
   SuiteNode& operator=(const SuiteNode&) = delete;
 private:
-  std::list<Node*> stmts;
+  std::vector<Node*> stmts;
 };
 
 class FuncNode : public Node {
@@ -95,6 +95,7 @@ public:
   CallNode(Node* n)  : Node(), ident(n) {}
   virtual ~CallNode() {}
   virtual const Literal* eval() const;
+  const std::string getIdent() const;
   CallNode(const CallNode&) = delete;
   CallNode& operator=(const CallNode&) = delete;
 private:
