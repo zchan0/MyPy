@@ -60,7 +60,10 @@ file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
-	: NEWLINE { $$ = nNull; }
+	: NEWLINE {
+		$$ = new PrintNode(nNull);
+		pool.add($$);
+	}
 	| stmt {
 		// skip func definition
 		// func should be evaluate only in CallNode
